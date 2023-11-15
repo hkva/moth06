@@ -1,0 +1,12 @@
+# Build files
+[Bb]uild
+[Bb]in
+
+# Editor files
+*.vs*
+*.sublime-*
+*.rdbg
+
+# Cache files
+*.cache
+*.DS_Store
