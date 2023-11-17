@@ -131,7 +131,14 @@ void DrawDebugUI() {
 }
 }
 
-void Run() {
+void Run(usize argc, const char* argv[]) {
+    for (usize i = 1; i < argc; ++i) {
+        const char* a = argv[i];
+        if (Str::Equal(a, "--dump-files")) {
+            cl.app.cli |= CLI_OPT_DUMP_FILES;
+        }
+    }
+
     // create window first so we have a graphics context while uploading textures
     SDL_Window* w = SDL_CreateWindow("moth06", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
     if (!w) {
@@ -149,6 +156,12 @@ void Run() {
     };
     for (usize i = 0; i < ArrLen(ARCHIVE_NAMES); ++i){
         Fs::Mount(ARCHIVE_NAMES[i]);
+    }
+    
+    if (cl.app.cli & CLI_OPT_DUMP_FILES) {
+        for (usize i = 0; i < cl.fs.files.Length(); ++i) {
+            Fs::Write(cl.fs.files[i].entry.e_name, cl.fs.files[i].data.View());
+        }
     }
 
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
@@ -235,7 +248,7 @@ int WinMain(HINSTANCE idc1, HINSTANCE idc2, LPSTR idc3, int idc4) {
         freopen("CONOUT$", "w", stderr);
     }
 
-    Run();
+    Run(__argc, (const char**)__argv);
 }
 
 #endif

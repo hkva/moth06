@@ -4,10 +4,6 @@
 #include <backends/imgui_impl_sdl2.h>
 #include <backends/imgui_impl_sdlrenderer2.h>
 
-// Yes these graphics backends are implemented with a discriminated union.
-// No it's not slow. The CPU will predict the correct branch 100% of the time.
-// I don't want to hear it. la la la
-
 union TextureData {
 	SDL_Texture* sdl;
 };
@@ -84,9 +80,7 @@ Gfx::Texture Gfx::UploadTexture(u32* rgba, u32 width, u32 height) {
 		SDL_FreeSurface(surf);
 	} break;
 	}
-	u32 head = gfx.textures.Length();
-	gfx.textures.Append(tex);
-	return head;
+	return (u32)gfx.textures.Append(tex);;
 }
 
 void* Gfx::GetTextureDescriptor(Texture texture) {

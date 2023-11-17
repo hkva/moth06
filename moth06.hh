@@ -21,11 +21,7 @@
 #include <cstring>
 
 #define SDL_MAIN_HANDLED
-#ifdef MOTH06_WINDOWS
-#   include <SDL.h>
-#else
-#   include <SDL2/SDL.h>
-#endif
+#include <SDL.h>
 
 #include <imgui.h>
 
@@ -250,10 +246,11 @@ public:
         Reserve(m_cap + more_capacity);
     }
 
-    void Append(const T& val) {
+    usize Append(const T& val) {
         const usize head = this->Length();
         Resize(head + 1);
         this->buf[head] = val;
+        return head;
     }
 };
 
@@ -328,7 +325,7 @@ public:
             result |= (m_data.buf[m_byte] >> (7 - m_bit)) & 0x1;
             if (++m_bit >= 8) {
                 m_bit = 0;
-                if ((m_overrun |= (++m_byte >= m_data.len))) {
+                if ((m_overrun |= (++m_byte >= m_data.len && i + 1 != num_bits))) {
                     return T();
                 }
             }
@@ -383,6 +380,7 @@ static inline void Die(const char* fmt, ...) {
     va_end(va);
     fprintf(stderr, "Error: %s\n", msg);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", msg, NULL);
+    Assert(0);
 }
 
 //
@@ -438,6 +436,10 @@ enum {
 };
 
 enum {
+    CLI_OPT_DUMP_FILES = 1 << 0,
+};
+
+enum {
     DEBUG_FLAG_UI = 1 << 0,
 };
 
@@ -467,6 +469,7 @@ struct File {
 struct Client {
     struct {
         u8  state;  // Current application control state
+        u8  cli;    // Command-line options
     } app;
     struct {
         u8  flags;  // Current debug options

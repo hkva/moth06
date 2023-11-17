@@ -1,6 +1,6 @@
 # Build files
-[Bb]uild
-[Bb]in
+/[Bb]uild
+/[Bb]in
 
 # Editor files
 *.vs*

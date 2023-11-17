@@ -12,7 +12,7 @@ static void TryParseAsset(File& file) {
 		file.asset_type = ASSET_TYPE_IMAGE;
 		int chan = 0;
 		u32* pixels = nullptr;
-		if (!(pixels = (u32*)stbi_load_from_memory(file.data.Buffer(), file.data.LengthInBytes(), (int*)&file.image.width, (int*)&file.image.height, &chan, 4))) {
+		if (!(pixels = (u32*)stbi_load_from_memory(file.data.Buffer(), (int)file.data.LengthInBytes(), (int*)&file.image.width, (int*)&file.image.height, &chan, 4))) {
 			Die("Failed to parse image asset %s", file.entry.e_name);
 		}
 		file.image.tex = Gfx::UploadTexture(pixels, file.image.width, file.image.height);
