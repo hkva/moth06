@@ -258,20 +258,20 @@ int WinMain(HINSTANCE idc1, HINSTANCE idc2, LPSTR idc3, int idc4) {
 #include <mach-o/dyld.h>
 #include <unistd.h>
 
-int main(void) {
+int main(int argc, char** argv) {
     // Reset working directory
     char path[1024] = { }; u32 path_size = sizeof(path);
     if (_NSGetExecutablePath(path, &path_size) != 0) {
         Die("OSX: Failed to get executable path");
     }
-    if (!FS_BaseName(path)) {
+    if (!Str::BaseName(path)) {
         Die("OSX: Failed to truncate executable path (%s)", path);
     }
     if (chdir(path) != 0) {
         Die("OSX: Failed to reset working directory to %s", path);
     }
 
-    Run();
+    Run(argc, (const char**)argv);
 }
 
 #endif

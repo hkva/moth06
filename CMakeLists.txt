@@ -63,6 +63,7 @@ target_include_directories(imgui PUBLIC
 target_link_libraries(moth06 PRIVATE
     imgui
 )
+target_compile_features(imgui PRIVATE cxx_std_23)
 
 #
 # Dep: FluidSynth
@@ -71,10 +72,12 @@ target_link_libraries(moth06 PRIVATE
 if(WIN32)
     set(FLUIDSYNTH_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/thirdparty/fluidsynth-2.3.4-win64/include")
     set(FLUIDSYNTH_LIBRARIES    "${PROJECT_SOURCE_DIR}/thirdparty/fluidsynth-2.3.4-win64/lib/fluidsynth.lib")
+elseif(APPLE)
+    # Homebrew
+    set(FLUIDSYNTH_INCLUDE_DIRS "/opt/homebrew/include")
+    set(FLUIDSYNTH_LIBRARIES    "/opt/homebrew/lib/libfluidsynth.dylib")
 else()
-    find_path(FLUIDSYNTH_INCLUDE_DIRS NAMES "fluidsynth.h" REQUIRED)
-    find_library(FLUIDSYNTH_LIBRARIES NAMES fluidsynth REQUIRED)
-    
+    # XXX: Linux
 endif()
 target_include_directories(moth06 PRIVATE ${FLUIDSYNTH_INCLUDE_DIRS})
 target_link_libraries(moth06 PRIVATE ${FLUIDSYNTH_LIBRARIES})
@@ -87,10 +90,12 @@ if(WIN32)
     set(SDL_INCLUDE_DIRS    "${PROJECT_SOURCE_DIR}/thirdparty/SDL2-2.28.5-win64/include")
     set(SDL_LIBRARIES       "${PROJECT_SOURCE_DIR}/thirdparty/SDL2-2.28.5-win64/lib/x64/SDL2.lib")
     set(SDL_DLLS            "${PROJECT_SOURCE_DIR}/thirdparty/SDL2-2.28.5-win64/lib/x64/SDL2.dll")
+elseif(APPLE)
+    # Homebrew
+    set(SDL_INCLUDE_DIRS    "/opt/homebrew/include/SDL2")
+    set(SDL_LIBRARIES       "/opt/homebrew/lib/libSDL2.dylib")
 else()
-    find_path(SDL_INCLUDE_DIRS NAMES "SDL2/SDL.h" REQUIRED)
-    find_library(SDL_LIBRARIES NAMES SDL2 REQUIRED)
-    
+    # XXX: Linux
 endif()
 target_include_directories(moth06 PRIVATE ${SDL_INCLUDE_DIRS})
 target_link_libraries(moth06 PRIVATE ${SDL_LIBRARIES})
