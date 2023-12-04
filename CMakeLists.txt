@@ -52,7 +52,7 @@ target_link_libraries(moth06-core PUBLIC moth06-common)
 #
 
 add_executable(moth06
-    "${CMAKE_CURRENT_LIST_DIR}/moth06_sdl.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/moth06.cc"
 )
 target_link_libraries(moth06 PUBLIC moth06-core)
 

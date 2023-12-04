@@ -1,4 +1,4 @@
-#include "moth06_sdl.hh"
+#include "moth06.hh"
 
 int main(void) {
     
