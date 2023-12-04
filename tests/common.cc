@@ -79,7 +79,7 @@ int main(void) {
         }
         CHECK_LEAKS();
         u64 base_time = tests::now() - then;
-        std::printf("std::vector bench:         %lluns\tN/A\n", base_time);
+        std::printf("std::vector bench:         %lluns\t100.00%%\n", base_time);
         then = tests::now();
         for (u32 i = 0; i < 1000; ++i) {
             Array<u32> test_arr = Array<u32>(AllocationStrategy::Linear);
@@ -136,6 +136,15 @@ int main(void) {
 
         hash::md5_string("The quick brown fox jumps over the lazy dog").render(digest, ARRLEN(digest));
         ASSERT(str::equal(digest, "9e107d9d372bb6826bd81d3542a419d6"));
+    }
+    CHECK_LEAKS();
+
+    {
+        HashMap<int> test_map = HashMap<int>();
+        test_map["val1"] = 1;
+        test_map["val2"] = 2;
+        ASSERT(test_map["val1"] == 1);
+        ASSERT(test_map["val2"] == 2);
     }
     CHECK_LEAKS();
 }

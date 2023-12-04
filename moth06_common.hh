@@ -127,9 +127,18 @@ static inline usize length(const char* str) {
 //
 
 // std::span replacement
-// XXX(HK): begin()/end()
 template <typename T>
 class Span {
+public:
+    class Iterator {
+    private:
+        T* m_ptr;
+    public:
+        Iterator(T* ptr) : m_ptr(ptr) { }
+        Iterator operator++() { ++m_ptr; return *this; }
+        bool operator!=(const Iterator& rhs) const { return m_ptr != rhs.m_ptr; }
+        T& operator*() const { return *m_ptr; }
+    };
 protected:
     T*      m_buffer = nullptr;
     usize   m_length = 0;
@@ -142,6 +151,9 @@ public:
 
     T* buffer() { return m_buffer; }
     usize length() { return m_length; }
+
+    Iterator begin()    { return Iterator(m_buffer); }
+    Iterator end()      { return Iterator(m_buffer + m_length); }
 
     // Raw byte view
     Span<u8> bytes() const { return Span<u8>((u8*)m_buffer, sizeof(T) * m_length); }
@@ -295,5 +307,49 @@ MD5Digest md5(Span<const u8> data);
 MD5Digest md5_string(const char* string);
 
 }
+
+template <typename T>
+class HashMap {
+private:
+    struct Entry {
+        u32 e_hash;
+        T   e_val;
+    };
+private:
+    static constexpr usize BAD_INDEX = ~(usize)0;
+private:
+    Array<Entry> m_entries;
+public:
+    HashMap() = default;
+    ~HashMap() = default;
+
+    T& operator[](const char* key) { return get(key); }
+
+    T& get(const char* key) {
+        const u32 key_hash = hash::fnv_string(key);
+        usize idx = index_of(key_hash);
+        if (idx == BAD_INDEX) {
+            idx = m_entries.append({
+                .e_hash = key_hash,
+                .e_val = T(),
+            });
+        }
+        return m_entries[idx].e_val;
+    }
+
+    bool has(const char* key) {
+        return index_of(hash::fnv_string(key)) != BAD_INDEX;
+    }
+private:
+    // Returns BAD_INDEX on failure
+    usize index_of(u32 key_hash) {
+        for (usize i = 0; i < m_entries.length(); ++i) {
+            if (m_entries[i].e_hash == key_hash) {
+                return i;
+            }
+        }
+        return BAD_INDEX;
+    }
+};
 
 #endif // _MOTH06_COMMON_HH_
