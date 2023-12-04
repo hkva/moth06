@@ -43,7 +43,7 @@ int main() {
         ASSERT(face12a.length());
         // 96681fc22212a1a5f441b391dfcd9314
         char face12a_digest[64] = { };
-        hash::md5(face12a.const_bytes()).render(BufferView<char>(face12a_digest, sizeof(face12a_digest)));
+        hash::md5(face12a.const_bytes()).render(face12a_digest, sizeof(face12a_digest));
         std::printf("Hash of face12a.png: %s\n", face12a_digest);
         ASSERT(str::equal(face12a_digest, "96681fc22212a1a5f441b391dfcd9314"));
 

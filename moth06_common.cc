@@ -6,8 +6,8 @@
 // Hashing
 //
 
-void hash::MD5Digest::render(BufferView<char> out) {
-    std::snprintf(out.buffer(), out.length(), "%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x",
+void hash::MD5Digest::render(char* str, usize len) {
+    std::snprintf(str, len, "%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x",
         bytes[ 0], bytes[ 1], bytes[ 2], bytes[ 3],
         bytes[ 4], bytes[ 5], bytes[ 6], bytes[ 7],
         bytes[ 8], bytes[ 9], bytes[10], bytes[11],
@@ -15,7 +15,7 @@ void hash::MD5Digest::render(BufferView<char> out) {
     );
 }
 
-u32 hash::fnv(BufferView<const u8> data) {
+u32 hash::fnv(Span<const u8> data) {
     // https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
     // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV_hash_parameters
     constexpr u32 FNV_PRIME  = 0x01000193;
@@ -30,10 +30,10 @@ u32 hash::fnv(BufferView<const u8> data) {
 
 u32 hash::fnv_string(const char* string) {
     // XXX(HK): Optimize for strings (avoid std::strlen() in BufferView::from_string())
-    return hash::fnv(BufferView<const char>::from_string(string).const_bytes());
+    return hash::fnv(Span<const char>(string, str::length(string)).const_bytes());
 }
 
-hash::MD5Digest hash::md5(BufferView<const u8> data) {
+hash::MD5Digest hash::md5(Span<const u8> data) {
     hash::MD5Digest result = { };
 
     // https://en.wikipedia.org/wiki/MD5
@@ -144,5 +144,5 @@ hash::MD5Digest hash::md5(BufferView<const u8> data) {
 }
 
 hash::MD5Digest hash::md5_string(const char* string) {
-    return hash::md5(BufferView<const char>::from_string(string).const_bytes());
+    return hash::md5(Span<const char>(string, str::length(string)).const_bytes());
 }

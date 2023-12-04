@@ -33,11 +33,11 @@ int main(void) {
 
     {
         int test_array[4] = { 5, 10, 15, 20 };
-        BufferView<int> test_view = BufferView<int>(test_array, ARRLEN(test_array));
-        BufferView<const int> const_test_view = BufferView<const int>(test_array, ARRLEN(test_array));
+        Span<int> test_view = Span<int>(test_array, ARRLEN(test_array));
+        Span<const int> const_test_view = Span<const int>(test_array, ARRLEN(test_array));
 
-        BufferView<u8> test_view_bytes = test_view.bytes();
-        const BufferView<const u8> const_test_view_bytes = test_view.const_bytes();
+        Span<u8> test_view_bytes = test_view.bytes();
+        const Span<const u8> const_test_view_bytes = test_view.const_bytes();
 
         test_view_bytes[0];
         const_test_view_bytes[0];
@@ -115,7 +115,7 @@ int main(void) {
 
     {
         const u8 buffer[1] = { 0b01011101 };
-        BitStream bits = BitStream(BufferView<const u8>(buffer, 1));
+        BitStream bits = BitStream(Span<const u8>(buffer, 1));
         ASSERT(bits.read_bits(1) == 0);
         ASSERT(bits.read_bits(1) == 1);
         ASSERT(bits.read_bits(1) == 0);
@@ -134,7 +134,7 @@ int main(void) {
 
         // XXX(HK): Test FNV hash
 
-        hash::md5_string("The quick brown fox jumps over the lazy dog").render(BufferView<char>(digest, ARRLEN(digest)));
+        hash::md5_string("The quick brown fox jumps over the lazy dog").render(digest, ARRLEN(digest));
         ASSERT(str::equal(digest, "9e107d9d372bb6826bd81d3542a419d6"));
     }
     CHECK_LEAKS();

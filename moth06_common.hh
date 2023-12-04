@@ -116,6 +116,10 @@ static inline bool equal(const char* s1, const char* s2) {
     return !std::strcmp(s1, s2);
 }
 
+static inline usize length(const char* str) {
+    return std::strlen(str);
+}
+
 }
 
 //
@@ -125,13 +129,13 @@ static inline bool equal(const char* s1, const char* s2) {
 // std::span replacement
 // XXX(HK): begin()/end()
 template <typename T>
-class BufferView {
+class Span {
 protected:
     T*      m_buffer = nullptr;
     usize   m_length = 0;
 public:
-    BufferView() = default;
-    BufferView(T* buffer, usize length) : m_buffer(buffer), m_length(length) { }
+    Span() = default;
+    Span(T* buffer, usize length) : m_buffer(buffer), m_length(length) { }
 
     T& operator[](usize idx)                { ASSERT(idx < m_length); return m_buffer[idx]; }
     const T& operator[](usize idx) const    { ASSERT(idx < m_length); return m_buffer[idx]; }
@@ -140,13 +144,9 @@ public:
     usize length() { return m_length; }
 
     // Raw byte view
-    BufferView<u8> bytes() const { return BufferView<u8>((u8*)m_buffer, sizeof(T) * m_length); }
+    Span<u8> bytes() const { return Span<u8>((u8*)m_buffer, sizeof(T) * m_length); }
     // Raw byte view (const)
-    BufferView<const u8> const_bytes() const { return BufferView<const u8>((const u8*)m_buffer, sizeof(T) * m_length); }
-public:
-    static BufferView<T> from_string(const char* string) {
-        return BufferView<T>(string, std::strlen(string));
-    }
+    Span<const u8> const_bytes() const { return Span<const u8>((const u8*)m_buffer, sizeof(T) * m_length); }
 };
 
 // Describes how containers allocate memory as they grow
@@ -158,13 +158,13 @@ enum class AllocationStrategy {
 
 // std::vector replacement
 template <typename T>
-class Array : public BufferView<T> {
+class Array : public Span<T> {
 private:
     usize               m_capacity = 0;
     AllocationStrategy  m_strategy = AllocationStrategy::Exponential;
 public:
-    Array(AllocationStrategy strategy = AllocationStrategy::Exponential) : BufferView<T>(), m_strategy(strategy) { }
-    Array(usize size, AllocationStrategy strategy = AllocationStrategy::Exponential) : BufferView<T>(), m_strategy(strategy) { resize(size); }
+    Array(AllocationStrategy strategy = AllocationStrategy::Exponential) : Span<T>(), m_strategy(strategy) { }
+    Array(usize size, AllocationStrategy strategy = AllocationStrategy::Exponential) : Span<T>(), m_strategy(strategy) { resize(size); }
     Array(const Array<T>& other) { copy(other); }
     ~Array() { resize(0); mem::free(this->m_buffer); }
 
@@ -222,13 +222,13 @@ public:
 // Binary reader
 class BitStream {
 private:
-    BufferView<const u8>    m_bytes = { };
-    usize                   m_cur_byte = 0;
-    usize                   m_cur_bit = 0;
-    bool                    m_overrun = false;
+    Span<const u8>  m_bytes = { };
+    usize           m_cur_byte = 0;
+    usize           m_cur_bit = 0;
+    bool            m_overrun = false;
 public:
     BitStream() = default;
-    BitStream(BufferView<const u8> bytes) : BitStream() { m_bytes = bytes; }
+    BitStream(Span<const u8> bytes) : BitStream() { m_bytes = bytes; }
 
     bool overrun() { return m_overrun; }
 
@@ -263,7 +263,7 @@ public:
     }
 
     // Read a null-terminated ASCII string
-    usize read_string(BufferView<char> buffer) {
+    usize read_string(Span<char> buffer) {
         usize n = 0;
         for (; n < buffer.length(); ++n) {
             if ((buffer[n] = read_bits<char>()) == '\0') {
@@ -285,13 +285,13 @@ class MD5Digest {
 public:
     u8 bytes[16];
 public:
-    void render(BufferView<char> out);
+    void render(char* str, usize len);
 };
 
-u32 fnv(BufferView<const u8> data);
+u32 fnv(Span<const u8> data);
 u32 fnv_string(const char* string);
 
-MD5Digest md5(BufferView<const u8> data);
+MD5Digest md5(Span<const u8> data);
 MD5Digest md5_string(const char* string);
 
 }
