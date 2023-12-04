@@ -129,6 +129,8 @@ else()
 endif()
 target_include_directories(imgui PRIVATE ${SDL_INCLUDE_DIRS})
 target_link_libraries(imgui PRIVATE ${SDL_LIBRARIES})
+target_include_directories(moth06 PRIVATE ${SDL_INCLUDE_DIRS})
+target_link_libraries(moth06 PRIVATE ${SDL_LIBRARIES})
 
 #
 # Dep: stb_image
