@@ -263,10 +263,10 @@ public:
     }
 
     // Read a null-terminated ASCII string
-    usize read_string(Span<char> buffer) {
+    usize read_string(char* str, usize len) {
         usize n = 0;
-        for (; n < buffer.length(); ++n) {
-            if ((buffer[n] = read_bits<char>()) == '\0') {
+        for (; n < len; ++n) {
+            if ((str[n] = read_bits<char>()) == '\0') {
                 break;
             }
         }

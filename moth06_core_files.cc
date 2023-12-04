@@ -30,7 +30,7 @@ bool pbg::read_entry_list(BitStream bits, Array<FileEntry>& entries) {
         e.e_chck = bits.read_int();
         e.e_foff = bits.read_int();
         e.e_fsiz = bits.read_int();
-        bits.read_string(Span<char>(e.e_name, ARRLEN(e.e_name)));
+        bits.read_string(e.e_name, ARRLEN(e.e_name));
     }
 
     return !bits.overrun();
