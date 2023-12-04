@@ -11,9 +11,9 @@ Prior work: https://hg.linkmauve.fr/touhou/file/tip/formats/src/th06/pbg3.rs
 Pseudocode for reading integers would look something like this
 
 ```c++
-int BitStream::ReadInt() {
-    const size_t num_bits = ReadBits(2);
-    return ReadBits((1 + num_bits) * 8);
+int BitStream::read_int() {
+    const size_t num_bits = read_bits(2);
+    return read_bits((1 + num_bits) * 8);
 }
 ```
 
@@ -31,11 +31,12 @@ struct PBGHeader {
 
 ```c
 struct PBGEntry {
-    int e_unk1; // XXX: Unknown
-    int e_unk2; // XXX: Unknown
-    int e_chck; // Decompressed data checksum
-    int e_foff; // Compressed data file offset
-    int e_fsiz; // Decompressed data size
+    int  e_unk1;   // XXX: Unknown
+    int  e_unk2;   // XXX: Unknown
+    int  e_chck;   // Decompressed data checksum
+    int  e_foff;   // Compressed data file offset
+    int  e_fsiz;   // Decompressed data size
+    char e_name[]; // Null-terminated ASCII string
 };
 ```
 
