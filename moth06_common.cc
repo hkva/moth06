@@ -6,7 +6,7 @@
 // Hashing
 //
 
-void Hash::MD5Digest::Render(char* str, usize len) {
+void hash::MD5Digest::render(char* str, usize len) {
     std::snprintf(str, len, "%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x",
         bytes[ 0], bytes[ 1], bytes[ 2], bytes[ 3],
         bytes[ 4], bytes[ 5], bytes[ 6], bytes[ 7],
@@ -15,26 +15,26 @@ void Hash::MD5Digest::Render(char* str, usize len) {
     );
 }
 
-u32 Hash::FNV(Span<const u8> data) {
+u32 hash::fnv(Span<const u8> data) {
     // https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
     // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV_hash_parameters
     constexpr u32 FNV_PRIME  = 0x01000193;
     constexpr u32 FNV_OFFSET = 0x811c9dc5;
     u32 result = FNV_OFFSET;
-    for (usize i = 0; i < data.Length(); ++i) {
+    for (usize i = 0; i < data.length(); ++i) {
         result ^= (u32)data[i];
         result *= FNV_PRIME;
     }
     return result;
 }
 
-u32 Hash::FNVString(const char* string) {
+u32 hash::fnv_string(const char* string) {
     // XXX(HK): Optimize for strings (avoid std::strlen() in BufferView::from_string())
-    return Hash::FNV(Span<const char>(string, Str::Length(string)).ConstBytes());
+    return hash::fnv(Span<const char>(string, str::length(string)).const_bytes());
 }
 
-Hash::MD5Digest Hash::MD5(Span<const u8> data) {
-    Hash::MD5Digest result = { };
+hash::MD5Digest hash::md5(Span<const u8> data) {
+    hash::MD5Digest result = { };
 
     // https://en.wikipedia.org/wiki/MD5
     // https://github.com/B-Con/crypto-algorithms/blob/master/md5.c
@@ -69,17 +69,17 @@ Hash::MD5Digest Hash::MD5(Span<const u8> data) {
     // padded with zeroes until the last 8 bytes of the last block, where the size of the input in bytes is written.
     // 
     // https://www.desmos.com/calculator/hypjdhc7v7
-    Array<u8> inp = Array<u8>(); inp.Resize((((data.Length() + 8) / 64) + 1) * 64);
+    Array<u8> inp = Array<u8>(); inp.resize((((data.length() + 8) / 64) + 1) * 64);
     
     // Set initial buffer
-    Mem::Copy(inp.Buffer(), data.Buffer(), data.Length());
+    mem::copy(inp.buffer(), data.buffer(), data.length());
 
     // Set "one" bit
-    inp[data.Length()] = 1 << 7;
+    inp[data.length()] = 1 << 7;
 
     // Write size in bits
-    const u64 size_bits = data.Length() * 8;
-    Mem::Copy(&inp[inp.Length() - sizeof(u64)], (const u8*)&size_bits, sizeof(u64));
+    const u64 size_bits = data.length() * 8;
+    mem::copy(&inp[inp.length() - sizeof(u64)], (const u8*)&size_bits, sizeof(u64));
 
     // Set initial state
     u32 state_A = 0x67452301;
@@ -88,8 +88,8 @@ Hash::MD5Digest Hash::MD5(Span<const u8> data) {
     u32 state_D = 0x10325476;
 
     // Process 512-bit chunks
-    ASSERT(inp.Length() % 64 == 0);
-    for (usize i = 0; i < inp.Length() / 64; ++i) {
+    ASSERT(inp.length() % 64 == 0);
+    for (usize i = 0; i < inp.length() / 64; ++i) {
         u32 a = state_A;
         u32 b = state_B;
         u32 c = state_C;
@@ -123,7 +123,7 @@ Hash::MD5Digest Hash::MD5(Span<const u8> data) {
             a = d;
             d = c;
             c = b;
-            b = b + RotateLeft(f, MD5_SHIFT_TABLE[j]);
+            b = b + rotate_left(f, MD5_SHIFT_TABLE[j]);
         }
 
         state_A += a;
@@ -138,11 +138,11 @@ Hash::MD5Digest Hash::MD5(Span<const u8> data) {
         state_C,
         state_D,
     };
-    Mem::Copy(result.bytes, (u8*)result32, ARRLEN(result.bytes));
+    mem::copy(result.bytes, (u8*)result32, ARRLEN(result.bytes));
 
     return result;
 }
 
-Hash::MD5Digest Hash::MD5String(const char* string) {
-    return Hash::MD5(Span<const char>(string, Str::Length(string)).ConstBytes());
+hash::MD5Digest hash::md5_string(const char* string) {
+    return hash::md5(Span<const char>(string, str::length(string)).const_bytes());
 }

@@ -12,37 +12,37 @@ static int test_alloc_tracker = 0;
 #include <chrono>
 #include <filesystem>
 
-namespace Tests {
+namespace tests {
 
-static inline bool DoesFolderExist(const char* path) {
+static inline bool does_folder_exist(const char* path) {
     return std::filesystem::is_directory(path);
 }
 
-static inline void RequireGameFiles() {
-    if (!DoesFolderExist("gamefiles")) {
+static inline void require_game_files() {
+    if (!does_folder_exist("gamefiles")) {
         std::printf("gamefiles/ doesn't exist, skipping test");
     }
 }
 
-static inline bool Load(const char* path, Array<u8>& bytes) {
+static inline bool load(const char* path, Array<u8>& bytes) {
     std::FILE* f = std::fopen(path, "rb");
     if (!f) {
         return false;
     }
     std::fseek(f, 0, SEEK_END);
-    bytes.Resize(std::ftell(f));
+    bytes.resize(std::ftell(f));
     std::fseek(f, 0, SEEK_SET);
-    std::fread(bytes.Buffer(), 1, bytes.Length(), f);
+    std::fread(bytes.buffer(), 1, bytes.length(), f);
     std::fclose(f);
     return true;
 }
 
-static inline u64 Now() {
+static inline u64 now() {
     return std::chrono::duration(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
-static inline f64 NowSeconds() {
-    return (f64)Now() / 1e9f;
+static inline f64 now_sec() {
+    return (f64)now() / 1e9f;
 }
 
 }

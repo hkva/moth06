@@ -7,7 +7,7 @@
 // PBG archive parsing
 //
 
-namespace PBG {
+namespace pbg {
 
 // XXX(HK): Confirm
 constexpr usize MAX_FILE_LENGTH = 256;
@@ -23,10 +23,10 @@ public:
 };
 
 // Read archive entry info
-bool ReadEntryList(BitStream bits, Array<FileEntry>& entries);
+bool read_entry_list(BitStream bits, Array<FileEntry>& entries);
 
 // Read and decompress archive entry
-bool ReadEntryData(BitStream bits, const FileEntry& file, Array<u8>& data);
+bool read_entry_data(BitStream bits, const FileEntry& file, Array<u8>& data);
 
 };
 
