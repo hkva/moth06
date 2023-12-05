@@ -30,4 +30,45 @@ bool read_entry_data(BitStream bits, const FileEntry& file, Array<u8>& data);
 
 };
 
+//
+// Game simulation
+//
+
+namespace game {
+
+enum class Button {
+    Up,
+    Down,
+    Left,
+    Right,
+};
+
+enum class ButtonState {
+    Press,
+    Release,
+};
+
+struct InputEvent {
+    Button      button;
+    ButtonState state;
+};
+
+// XXX(HK): Advantage of this over function pointer?
+class ResourceProvider {
+public:
+    virtual bool load_file(const char* path, Array<u8>& data);
+};
+
+class Simulator {
+private:
+    Array<InputEvent> m_queued_inputs;
+    ResourceProvider* m_resources;
+public:
+    void init(ResourceProvider* resources);
+    void add_input(InputEvent evt) { m_queued_inputs.append(evt); }
+};
+
+};
+
 #endif // _MOTH06_CORE_HH_
+

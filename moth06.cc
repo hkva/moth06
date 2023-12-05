@@ -1,5 +1,49 @@
 #include "moth06.hh"
 
-int main(void) {
-    
+Application a = { };
+game::Simulator g = { };
+
+class FileResourceProvider : public game::ResourceProvider {
+private:
+public:
+    virtual bool load_file(const char* path, Array<u8>& data) {
+        return false;
+    }
+};
+
+static void moth06_main(usize argc, const char* argv[]) {
+    a.argc = argc; a.argv = argv;
+    for (usize i = 1; i < a.argc; ++i) {
+        const char* f = a.argv[i];
+        if (str::equal(f, "--headless")) {
+            a.flags |= APP_FLAG_HEADLESS;
+        } else {
+            die("Unknown command-line argument: %s", f);
+        }
+    }
+
+    if (!(a.flags & APP_FLAG_HEADLESS)) {
+        if (!(a.wnd = SDL_CreateWindow(APP_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, APP_WIDTH, APP_HEIGHT, 0))) {
+            die("Failed to create game window: %s", SDL_GetError());
+        }
+        if (!(a.r = SDL_CreateRenderer(a.wnd, -1, SDL_RENDERER_ACCELERATED))) {
+            die("Failed to create renderer: %s", SDL_GetError());
+        }
+    }
+
+    do {
+        // Process user events - live from user
+        if (!(a.flags & APP_FLAG_HEADLESS)) {
+            SDL_Event evt = { };
+            while (SDL_PollEvent(&evt)) {
+            }
+        }
+    } while (false);
 }
+
+// XXX(HK): SDLmain
+int main(int argc, const char* argv[]) {
+    moth06_main(argc, argv);
+    return 0;
+}
+

@@ -11,8 +11,10 @@
 #endif
 
 #include <cassert>
+#include <cstdarg>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <new>
@@ -130,6 +132,8 @@ static inline usize length(const char* str) {
 template <typename T>
 class Span {
 public:
+    // XXX(HK): Is this the best implementation of this? How does it compare to index-based iteration?
+    //          This is straight from StackOverflow.
     class Iterator {
     private:
         T* m_ptr;
@@ -146,10 +150,11 @@ public:
     Span() = default;
     Span(T* buffer, usize length) : m_buffer(buffer), m_length(length) { }
 
+    // XXX(HK): Make sure these ASSERT()s are removed in release builds
     T& operator[](usize idx)                { ASSERT(idx < m_length); return m_buffer[idx]; }
     const T& operator[](usize idx) const    { ASSERT(idx < m_length); return m_buffer[idx]; }
 
-    T* buffer() { return m_buffer; }
+    T*    buffer() { return m_buffer; }
     usize length() { return m_length; }
 
     Iterator begin()    { return Iterator(m_buffer); }
@@ -157,7 +162,7 @@ public:
 
     // Raw byte view
     Span<u8> bytes() const { return Span<u8>((u8*)m_buffer, sizeof(T) * m_length); }
-    // Raw byte view (const)
+    // Raw byte view (const edition)
     Span<const u8> const_bytes() const { return Span<const u8>((const u8*)m_buffer, sizeof(T) * m_length); }
 };
 
@@ -195,8 +200,8 @@ public:
         if (capacity > m_capacity) {
             switch (m_strategy) {
                 case AllocationStrategy::Linear: break;
-                case AllocationStrategy::Double: { capacity *= 2; }; break;
-                case AllocationStrategy::Exponential: { capacity = next_power_of_2(capacity); }; break;
+                case AllocationStrategy::Double: { capacity = max(capacity, m_capacity * 2); }; break; // f(x) = 2x seems to be the best, default to Double
+                case AllocationStrategy::Exponential: { capacity = max(capacity, next_power_of_2(m_capacity)); }; break;
                 default: ASSERT_NOT_REACHED();
             }
             T* new_buffer = mem::alloc<T>(capacity);
@@ -268,13 +273,13 @@ public:
         return result;
     }
 
-    // Touhou-specific integer encoding
     u32 read_int() {
+        // Touhou-specific integer encoding
+        // see /docs/fileformats.md
         const usize extra_bytes = read_bits<usize>(2);
         return read_bits((1 + extra_bytes) * 8);
     }
 
-    // Read a null-terminated ASCII string
     usize read_string(char* str, usize len) {
         usize n = 0;
         for (; n < len; ++n) {
@@ -308,48 +313,5 @@ MD5Digest md5_string(const char* string);
 
 }
 
-template <typename T>
-class HashMap {
-private:
-    struct Entry {
-        u32 e_hash;
-        T   e_val;
-    };
-private:
-    static constexpr usize BAD_INDEX = ~(usize)0;
-private:
-    Array<Entry> m_entries;
-public:
-    HashMap() = default;
-    ~HashMap() = default;
-
-    T& operator[](const char* key) { return get(key); }
-
-    T& get(const char* key) {
-        const u32 key_hash = hash::fnv_string(key);
-        usize idx = index_of(key_hash);
-        if (idx == BAD_INDEX) {
-            idx = m_entries.append({
-                .e_hash = key_hash,
-                .e_val = T(),
-            });
-        }
-        return m_entries[idx].e_val;
-    }
-
-    bool has(const char* key) {
-        return index_of(hash::fnv_string(key)) != BAD_INDEX;
-    }
-private:
-    // Returns BAD_INDEX on failure
-    usize index_of(u32 key_hash) {
-        for (usize i = 0; i < m_entries.length(); ++i) {
-            if (m_entries[i].e_hash == key_hash) {
-                return i;
-            }
-        }
-        return BAD_INDEX;
-    }
-};
-
 #endif // _MOTH06_COMMON_HH_
+

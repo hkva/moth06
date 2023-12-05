@@ -44,6 +44,7 @@ target_compile_features(moth06-common PUBLIC cxx_std_23)
 
 add_library(moth06-core STATIC
     "${CMAKE_CURRENT_LIST_DIR}/moth06_core_files.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/moth06_core_game.cc"
 )
 target_link_libraries(moth06-core PUBLIC moth06-common)
 
@@ -129,6 +130,8 @@ else()
 endif()
 target_include_directories(imgui PRIVATE ${SDL_INCLUDE_DIRS})
 target_link_libraries(imgui PRIVATE ${SDL_LIBRARIES})
+target_include_directories(moth06 PRIVATE ${SDL_INCLUDE_DIRS})
+target_link_libraries(moth06 PRIVATE ${SDL_LIBRARIES})
 
 #
 # Dep: stb_image

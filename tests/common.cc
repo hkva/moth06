@@ -138,13 +138,4 @@ int main(void) {
         ASSERT(str::equal(digest, "9e107d9d372bb6826bd81d3542a419d6"));
     }
     CHECK_LEAKS();
-
-    {
-        HashMap<int> test_map = HashMap<int>();
-        test_map["val1"] = 1;
-        test_map["val2"] = 2;
-        ASSERT(test_map["val1"] == 1);
-        ASSERT(test_map["val2"] == 2);
-    }
-    CHECK_LEAKS();
 }

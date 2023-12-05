@@ -36,6 +36,8 @@ u32 hash::fnv_string(const char* string) {
 hash::MD5Digest hash::md5(Span<const u8> data) {
     hash::MD5Digest result = { };
 
+    // XXX(HK): Documentation overload because I don't understand this algorithm
+    //          This is really slow, make it faster
     // https://en.wikipedia.org/wiki/MD5
     // https://github.com/B-Con/crypto-algorithms/blob/master/md5.c
 
@@ -146,3 +148,4 @@ hash::MD5Digest hash::md5(Span<const u8> data) {
 hash::MD5Digest hash::md5_string(const char* string) {
     return hash::md5(Span<const char>(string, str::length(string)).const_bytes());
 }
+
