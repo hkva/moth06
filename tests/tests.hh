@@ -19,8 +19,8 @@ static inline bool does_folder_exist(const char* path) {
 }
 
 static inline void require_game_files() {
-    if (!does_folder_exist("gamefiles")) {
-        std::printf("gamefiles/ doesn't exist, skipping test");
+    if (!does_folder_exist("bin/gamefiles")) {
+        std::printf("bin/gamefiles/ doesn't exist, skipping test");
     }
 }
 

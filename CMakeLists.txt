@@ -70,7 +70,7 @@ if(TRUE)
         add_test(
             NAME "${test_name}"
             COMMAND "$<TARGET_FILE:moth06-test-${test_name}>"
-            WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
         )
     endfunction()
 

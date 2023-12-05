@@ -9,7 +9,7 @@ int main() {
     // Read PBG
     {
         Array<u8> pbg_bytes = Array<u8>();
-        if (!tests::load("./gamefiles/紅魔郷ST.DAT", pbg_bytes)) {
+        if (!tests::load("./bin/gamefiles/紅魔郷ST.DAT", pbg_bytes)) {
             ASSERT(0 && "failed to load game archive file");
         }
 
@@ -29,7 +29,8 @@ int main() {
                 ASSERT_NOT_REACHED();
             }
 #if 1
-            std::FILE* fout = std::fopen(f.e_name, "wb"); ASSERT(fout);
+            char fname[512]; std::snprintf(fname, sizeof(fname), "bin/%s", f.e_name);
+            std::FILE* fout = std::fopen(fname, "wb"); ASSERT(fout);
             std::fwrite(contents.buffer(), 1, contents.length(), fout);
             std::fclose(fout);
 #endif
