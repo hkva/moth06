@@ -14,9 +14,14 @@ enum {
     APP_FLAG_HEADLESS = 1 << 0,
 };
 
+enum {
+    APP_STATE_WANTS_QUIT = 1 << 0,
+};
+
 struct Application {
     usize argc; const char** argv;
     u8 flags;
+    u8 state;
 
     SDL_Window* wnd;
     SDL_Renderer* r;

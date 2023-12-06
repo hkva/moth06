@@ -53,16 +53,20 @@ struct InputEvent {
     ButtonState state;
 };
 
-// XXX(HK): Advantage of this over function pointer?
+// NOTE(HK): This basically acts as a function pointer
 class ResourceProvider {
 public:
     virtual bool load_file(const char* path, Array<u8>& data);
 };
 
+// NOTE(HK): Use a class for this because we might want to simulate multiple games
+// while doing replay validation.
 class Simulator {
 private:
     Array<InputEvent> m_queued_inputs;
     ResourceProvider* m_resources;
+public:
+    u8 m_flags;
 public:
     void init(ResourceProvider* resources);
     void add_input(InputEvent evt) { m_queued_inputs.append(evt); }

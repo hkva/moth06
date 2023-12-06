@@ -23,7 +23,8 @@ static void moth06_main(usize argc, const char* argv[]) {
     }
 
     if (!(a.flags & APP_FLAG_HEADLESS)) {
-        if (!(a.wnd = SDL_CreateWindow(APP_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, APP_WIDTH, APP_HEIGHT, 0))) {
+        if (!(a.wnd = SDL_CreateWindow(APP_TITLE,
+                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, APP_WIDTH, APP_HEIGHT, 0))) {
             die("Failed to create game window: %s", SDL_GetError());
         }
         if (!(a.r = SDL_CreateRenderer(a.wnd, -1, SDL_RENDERER_ACCELERATED))) {
@@ -31,8 +32,13 @@ static void moth06_main(usize argc, const char* argv[]) {
         }
     }
 
+    // NOTE(HK):
+    //   * Game simulation must happen at 60hz (except for when testing demos!)
+    //   * When the user presses the X to close the window, the game instantly
+    //     closes and nothing is saved. The game process needs to be ready to die
+    //     at any time without bad things happening.
     do {
-        // Process user events - live from user
+        // Queue user events - live from user
         if (!(a.flags & APP_FLAG_HEADLESS)) {
             SDL_Event evt = { };
             while (SDL_PollEvent(&evt)) {
