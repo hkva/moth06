@@ -42,7 +42,7 @@ target_compile_features(moth06-common PUBLIC cxx_std_23)
 # Core library
 #
 
-add_library(moth06-core STATIC
+add_library(moth06-core SHARED
     "${CMAKE_CURRENT_LIST_DIR}/moth06_core_files.cc"
     "${CMAKE_CURRENT_LIST_DIR}/moth06_core_game.cc"
 )

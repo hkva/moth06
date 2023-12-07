@@ -1,15 +1,16 @@
 #include "moth06.hh"
 
 Application a = { };
-game::Simulator g = { };
+Game g = { };
 
-class FileResourceProvider : public game::ResourceProvider {
-private:
-public:
-    virtual bool load_file(const char* path, Array<u8>& data) {
-        return false;
-    }
-};
+static void moth06_dbg_game(const char* message) {
+    dbgmsg("[core] %s", message);
+}
+
+static bool moth06_load_file(const char* path, Array<u8>& data) {
+    (void)path; (void)data;
+    return false;
+}
 
 static void moth06_main(usize argc, const char* argv[]) {
     a.argc = argc; a.argv = argv;
@@ -31,6 +32,12 @@ static void moth06_main(usize argc, const char* argv[]) {
             die("Failed to create renderer: %s", SDL_GetError());
         }
     }
+
+    const GameAppInterface appiface = {
+        .dbg        = moth06_dbg_game,
+        .load_asset = moth06_load_file,
+    };
+    create_game(&g, &appiface);
 
     // NOTE(HK):
     //   * Game simulation must happen at 60hz (except for when testing demos!)

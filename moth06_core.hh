@@ -7,72 +7,40 @@
 // PBG archive parsing
 //
 
-namespace pbg {
-
 // XXX(HK): Confirm
-constexpr usize MAX_FILE_LENGTH = 256;
+constexpr usize MAX_PBG_NAME = 256;
 
-class FileEntry {
+class PBGEntry {
 public:
     u32  e_unk1;
     u32  e_unk2;
     u32  e_chck;
     u32  e_foff;
     u32  e_fsiz;
-    char e_name[MAX_FILE_LENGTH];
+    char e_name[MAX_PBG_NAME];
 };
 
-// Read archive entry info
-bool read_entry_list(BitStream bits, Array<FileEntry>& entries);
+// Only reads entry info table, not actual entry data
+bool read_pbg_entries(BitStream bits, Array<PBGEntry>& entries);
 
 // Read and decompress archive entry
-bool read_entry_data(BitStream bits, const FileEntry& file, Array<u8>& data);
-
-};
+bool read_pbg_entry_data(BitStream bits, const PBGEntry& file, Array<u8>& data);
 
 //
 // Game simulation
 //
 
-namespace game {
-
-enum class Button {
-    Up,
-    Down,
-    Left,
-    Right,
+// Game->App interface
+struct GameAppInterface {
+    bool(*load_asset)(const char* path, Array<u8>& data);
+    void(*dbg)(const char* message);
 };
 
-enum class ButtonState {
-    Press,
-    Release,
+struct Game {
+    GameAppInterface app;
 };
 
-struct InputEvent {
-    Button      button;
-    ButtonState state;
-};
-
-// NOTE(HK): This basically acts as a function pointer
-class ResourceProvider {
-public:
-    virtual bool load_file(const char* path, Array<u8>& data);
-};
-
-// NOTE(HK): Use a class for this because we might want to simulate multiple games
-// while doing replay validation.
-class Simulator {
-private:
-    Array<InputEvent> m_queued_inputs;
-    ResourceProvider* m_resources;
-public:
-    u8 m_flags;
-public:
-    void init(ResourceProvider* resources);
-    void add_input(InputEvent evt) { m_queued_inputs.append(evt); }
-};
-
-};
+void create_game(Game* game, const GameAppInterface* app_interface);
 
 #endif // _MOTH06_CORE_HH_
 

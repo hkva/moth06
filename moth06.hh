@@ -15,7 +15,8 @@ enum {
 };
 
 enum {
-    APP_STATE_WANTS_QUIT = 1 << 0,
+    APP_STATE_WANTS_QUIT    = 1 << 0,
+    APP_STATE_WANTS_RELOAD  = 1 << 1,
 };
 
 struct Application {
@@ -23,11 +24,13 @@ struct Application {
     u8 flags;
     u8 state;
 
+    void* game_lib;
+
     SDL_Window* wnd;
     SDL_Renderer* r;
 };
-extern Application      a;
-extern game::Simulator  g;
+extern Application  a;
+extern Game         g;
 
 static inline void die(const char* fmt, ...) {
     static char buf[512];
@@ -36,6 +39,15 @@ static inline void die(const char* fmt, ...) {
     va_end(va);
 
     std::fprintf(stderr, "ERROR: %s\n", buf);
+}
+
+static inline void dbgmsg(const char* fmt, ...) {
+    static char buf[512];
+    std::va_list va; va_start(va, fmt);
+    std::vsnprintf(buf, sizeof(buf), fmt, va);
+    va_end(va);
+
+    std::fprintf(stdout, "%s\n", buf);
 }
 
 #endif // _MOTH06_HH_

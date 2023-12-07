@@ -15,17 +15,17 @@ int main() {
 
         BitStream pbg_bits = BitStream(pbg_bytes.const_bytes());
 
-        Array<pbg::FileEntry> entries = Array<pbg::FileEntry>();
-        if (!pbg::read_entry_list(pbg_bits, entries)) {
+        Array<PBGEntry> entries = Array<PBGEntry>();
+        if (!read_pbg_entries(pbg_bits, entries)) {
             ASSERT(0 && "failed to read game archive file entries");
         }
 
         Array<u8> face12a = Array<u8>();
         for (usize i = 0; i < entries.length(); ++i) {
-            pbg::FileEntry& f = entries[i];
+            PBGEntry& f = entries[i];
 
             static Array<u8> contents = Array<u8>();
-            if (!pbg::read_entry_data(pbg_bits, f, contents)) {
+            if (!read_pbg_entry_data(pbg_bits, f, contents)) {
                 ASSERT_NOT_REACHED();
             }
 #if 1

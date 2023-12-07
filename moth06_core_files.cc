@@ -4,7 +4,7 @@
 // PBG archive parsing
 //
 
-bool pbg::read_entry_list(BitStream bits, Array<FileEntry>& entries) {
+bool read_pbg_entries(BitStream bits, Array<PBGEntry>& entries) {
     const char magic[4] = {
         bits.read_bits<char>(),
         bits.read_bits<char>(),
@@ -24,7 +24,7 @@ bool pbg::read_entry_list(BitStream bits, Array<FileEntry>& entries) {
 
     entries.resize(etbl_num);
     for (usize i = 0; i < entries.length(); ++i) {
-        FileEntry& e = entries[i];
+        PBGEntry& e = entries[i];
         e.e_unk1 = bits.read_int();
         e.e_unk2 = bits.read_int();
         e.e_chck = bits.read_int();
@@ -36,7 +36,7 @@ bool pbg::read_entry_list(BitStream bits, Array<FileEntry>& entries) {
     return !bits.overrun();
 }
 
-bool pbg::read_entry_data(BitStream bits, const FileEntry& file, Array<u8>& data) {
+bool read_pbg_entry_data(BitStream bits, const PBGEntry& file, Array<u8>& data) {
     // Touhou-specific LZSS encoding options
     // XXX(HK): These are copy/pasted from PyTouhou, confirm these
     constexpr usize LZSS_DICTIONARY_SIZE    = 0x2000;
