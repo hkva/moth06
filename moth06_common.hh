@@ -122,6 +122,17 @@ static inline usize length(const char* str) {
     return std::strlen(str);
 }
 
+// does not include .
+static inline const char* extension(const char* str) {
+    const char* result = str;
+    for (usize i = 0; str[i] != '\0'; ++i) {
+        if (i > 0 && str[i] != '.' && str[i-1] == '.') {
+            result = &str[i];
+        }
+    }
+    return result;
+}
+
 }
 
 //
@@ -172,6 +183,19 @@ enum class AllocationStrategy {
     Double,
     Exponential,
 };
+
+// std::remove_all_extents replacement
+// https://en.cppreference.com/w/cpp/types/remove_all_extents
+template <typename T>
+struct DecayTypeHack { typedef T type; };
+
+template <typename T>
+struct DecayTypeHack<T[]> { typedef typename DecayTypeHack<T>::type type; };
+
+template <typename T, usize N>
+struct DecayTypeHack<T[N]> { typedef typename DecayTypeHack<T>::type type; };
+
+#define ARRAY_SPAN(arr) Span<DecayTypeHack<decltype(arr)>::type>(arr, ARRLEN(arr))
 
 // std::vector replacement
 template <typename T>
@@ -280,7 +304,7 @@ public:
         return read_bits((1 + extra_bytes) * 8);
     }
 
-    usize read_string(char* str, usize len) {
+    usize read_c_string(char* str, usize len) {
         usize n = 0;
         for (; n < len; ++n) {
             if ((str[n] = read_bits<char>()) == '\0') {
@@ -288,6 +312,43 @@ public:
             }
         }
         return n;
+    }
+};
+
+// Byte reader
+class ByteStream {
+private:
+    Span<const u8>  m_bytes = Span<const u8>();
+    usize           m_cur_byte = 0;
+    bool            m_overrun = false;
+public:
+    ByteStream() = default;
+    ByteStream(Span<const u8> bytes) : ByteStream() { m_bytes = bytes; }
+
+    bool overrun() { return m_overrun; };
+
+    void seek(usize offset) { m_cur_byte = offset; }
+
+    template <typename T>
+    T read() {
+        // XXX(HK): Big-endian?
+        T result = T();
+        if ((m_overrun |= (m_cur_byte + sizeof(T) >= m_bytes.length()))) {
+            return T();
+        }
+        mem::copy(&result, (const T*)&m_bytes[m_cur_byte]);
+        m_cur_byte += sizeof(T);
+        return result;
+    }
+
+    template <typename T>
+    void read(Span<T> array) {
+        for (auto& i : array) {
+            i = read<T>();
+            if (m_overrun) {
+                return;
+            }
+        }
     }
 };
 

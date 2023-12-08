@@ -12,6 +12,8 @@ static int test_alloc_tracker = 0;
 #include <chrono>
 #include <filesystem>
 
+#define LOG(...) std::printf(__VA_ARGS__); std::printf("\n"); std::fflush(stdout);
+
 namespace tests {
 
 static inline bool does_folder_exist(const char* path) {
