@@ -46,12 +46,63 @@ struct AnimationSprite {
     f32 h;
 };
 
+enum class AnimationScriptOpType : u8 {
+    End                         = 0,
+    SetSprite                   = 1,
+    SetScale                    = 2,
+    SetAlpha                    = 3,
+    SetColor                    = 4,
+    Jump                        = 5,
+    Unknown1                    = 6, // XXX
+    ToggleMirrored              = 7,
+    Unknown2                    = 8, // XXX
+    Set3DRotations              = 9,
+    Set3DRotationsSpeed         = 10,
+    SetScaleSpeed               = 11,
+    Fade                        = 12,
+    SetBlendModeAdd             = 13,
+    SetBlendModeAlphaBlend      = 14,
+    KeepStill                   = 15,
+    SetRandomSprite             = 16,
+    Set3DTranslation            = 17,
+    MoveToLinear                = 18,
+    MoveToDecel                 = 19,
+    MoveToAccel                 = 20,
+    Wait                        = 21,
+    InterruptLabel              = 22,
+    SetCornerRelativePlacement  = 23,
+    WaitEx                      = 24,
+    SetAllowedOffset            = 25,
+    SetAutoOrientation          = 26,
+    ShiftTextureX               = 27,
+    ShiftTextureY               = 28,
+    SetVisible                  = 29,
+    ScaleIn                     = 30,
+};
+
+struct AnimationScriptOp {
+    u16 time;
+    AnimationScriptOpType type;
+    u8 size;
+
+    union {
+        u32 set_sprite;
+        // XXX more
+    };
+};
+
+struct AnimationScript {
+    u32 idx;
+    Array<AnimationScriptOp> ops;
+};
+
 struct Animation {
     u32     version;
-    char    primary_name[MAX_ANM_NAME];
-    char    secondary_name[MAX_ANM_NAME];
+    char    texture_path[MAX_ANM_NAME];
+    char    texture_alpha_path[MAX_ANM_NAME];
 
     Array<AnimationSprite> sprites;
+    Array<AnimationScript> scripts;
 };
 
 bool read_anm(Span<const u8> file, Animation& anim);

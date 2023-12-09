@@ -130,10 +130,11 @@ int main() {
                 LOG("Failed to load animation %s", asset.info.e_name); ASSERT(0);
             }
             LOG("%s: Animation", asset.info.e_name);
-            LOG("    .version:          %u", anim.version);
-            LOG("    .primary_name:     %s", anim.primary_name);
-            LOG("    .secondary_name:   %s", anim.secondary_name);
-            break;
+            LOG("    .version:              %u", anim.version);
+            LOG("    .texture_path:         %s", anim.texture_path);
+            LOG("    .texture_alpha_path:   %s", anim.texture_alpha_path);
+            LOG("    .sprites:              AnimationSprite[%u]", (u32)anim.sprites.length());
+            LOG("    .scripts:              AnimationScript[%u]", (u32)anim.scripts.length());
         } else if (str::equal(ext, "pos")) {
             count.loops++;
             LOG("%s: Music loop marker", asset.info.e_name);
@@ -191,6 +192,53 @@ int main() {
         LOG("Sprites: (%u):", (u32)anim.sprites.length());
         for (auto& s : anim.sprites) {
             LOG("    { idx = %u, x = %f, y = %f, w = %f, h = %f }", s.idx, s.x, s.y, s.w, s.h);
+        }
+        LOG("Scripts: (%u):", (u32)anim.scripts.length());
+        for (auto& s : anim.scripts) {
+            LOG("    { idx = %u, ops = [", s.idx);
+            const char* OP_NAMES[] = {
+                "End",
+                "SetSprite",
+                "SetScale",
+                "SetAlpha",
+                "SetColor",
+                "Jump",
+                "Unknown1",
+                "ToggleMirrored",
+                "Unknown2",
+                "Set3DRotations",
+                "Set3DRotationsSpeed",
+                "SetScaleSpeed",
+                "Fade",
+                "SetBlendModeAdd",
+                "SetBlendModeAlphaBlend",
+                "KeepStill",
+                "SetRandomSprite",
+                "Set3DTranslation",
+                "MoveToLinear",
+                "MoveToDecel",
+                "MoveToAccel",
+                "Wait",
+                "InterruptLabel",
+                "SetCornerRelativePlacement",
+                "WaitEx",
+                "SetAllowedOffset",
+                "SetAutoOrientation",
+                "ShiftTextureX",
+                "ShiftTextureY",
+                "SetVisible",
+                "ScaleIn",
+            };
+            for (auto& op : s.ops) {
+                ASSERT((usize)op.type < ARRLEN(OP_NAMES));
+                char args[256] = { 'N','o','n','e' };
+                switch (op.type) {
+                    case AnimationScriptOpType::SetSprite: { snprintf(args, sizeof(args), "{ idx = %u }", op.set_sprite); } break;
+                    default: break;
+                }
+                LOG("        { time = %u, type = %s, size = %u, args = %s }", op.time, OP_NAMES[(usize)op.type], op.size, args);
+            }
+            LOG("    ]}");
         }
     }
 }

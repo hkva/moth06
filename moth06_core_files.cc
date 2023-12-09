@@ -99,16 +99,16 @@ bool read_anm(Span<const u8> file, Animation& anim) {
     anim = Animation();
 
     ByteStream bytes = ByteStream(file);
-    const u32 num_sprites = bytes.read<u32>();  // nb_sprites
-    const u32 num_scripts = bytes.read<u32>();  // nb_scripts
+    const u32 num_sprites = bytes.read<u32>();
+    const u32 num_scripts = bytes.read<u32>();
     bytes.read<u32>();  // ?
     bytes.read<u32>();  // width
     bytes.read<u32>();  // height
     bytes.read<u32>();  // fmt
     bytes.read<u32>();  // ?
-    const u32 name_off = bytes.read<u32>();  // name_offset
+    const u32 texture_path_off = bytes.read<u32>();
     bytes.read<u32>();  // ?
-    const u32 name2_off = bytes.read<u32>();  // secondary_name_offset
+    const u32 texture_a_path_off = bytes.read<u32>();
     anim.version = bytes.read<u32>(); ASSERT(anim.version == 0);
     bytes.read<u32>();  // ?
     bytes.read<u32>();  // texture_offset
@@ -119,22 +119,24 @@ bool read_anm(Span<const u8> file, Animation& anim) {
     for (u32 i = 0; i < num_sprites; ++i) {
         sprite_offsets[i] = bytes.read<u32>();
     }
+    anim.scripts.reserve(num_scripts);
     Array<u32> script_offsets = Array<u32>(num_scripts);
     for (u32 i = 0; i < num_scripts; ++i) {
+        const AnimationScript script = {
+            .idx = bytes.read<u32>(),
+        };
+        anim.scripts.append(script);
         script_offsets[i] = bytes.read<u32>();
-        bytes.read<u32>(); // ?
     }
-    std::printf("num_scripts: %u\n", num_scripts);
-    ASSERT(name_off); bytes.seek(name_off);
-    bytes.read(ARRAY_SPAN(anim.primary_name));
-    if (name2_off) {
-        bytes.seek(name2_off);
-        bytes.read(ARRAY_SPAN(anim.secondary_name));
+    ASSERT(texture_path_off); bytes.seek(texture_path_off);
+    bytes.read(ARRAY_SPAN(anim.texture_path));
+    if (texture_a_path_off) {
+        bytes.seek(texture_a_path_off);
+        bytes.read(ARRAY_SPAN(anim.texture_alpha_path));
     }
 
     anim.sprites.reserve(num_sprites);
-    for (auto offset : sprite_offsets) {
-        std::printf("sprite offset: 0x%X\n", offset);
+    for (const u32 offset : sprite_offsets) {
         bytes.seek(offset);
         const AnimationSprite sprite = {
             .idx = bytes.read<u32>(),
@@ -146,22 +148,36 @@ bool read_anm(Span<const u8> file, Animation& anim) {
         anim.sprites.append(sprite);
     }
 
-    // this is fucked
-#if 0
-    for (auto& offset : script_offsets) {
-        std::printf("OP:\n");
-        bytes.seek(offset);
-        // static u8 op_par[0xFF] = { };
-        // read opcodes
-        const u16 op_time = bytes.read<u16>();
-        const u8 op_code = bytes.read<u8>();
-        const u8 op_size = bytes.read<u8>();
-        std::printf("op_time = %u\n", op_time);
-        std::printf("op_code = %u\n", op_code);
-        std::printf("op_size = %u\n", op_size);
+    // read script opcodes
+    for (usize i = 0; i < script_offsets.length(); ++i) {
+        AnimationScript& s = anim.scripts[i];
+        bytes.seek(script_offsets[i]);
+        bool reading = true;
+        while (reading) {
+            AnimationScriptOp op = {
+                .time = bytes.read<u16>(),
+                .type = bytes.read<AnimationScriptOpType>(),
+                .size = bytes.read<u8>(),
+            };
+            usize next_op_offset = bytes.tell() + op.size;
+            switch (op.type) {
+                case AnimationScriptOpType::End: {
+                    reading = false;
+                } break;
+                case AnimationScriptOpType::SetSprite: {
+                    op.set_sprite = bytes.read<u32>();
+                } break;
+                default: {
+                    bytes.seek(next_op_offset);
+                } break;
+            }
+            if (reading) {
+                s.ops.append(op);
+            }
+        }
     }
-#endif
 
+    ASSERT(!bytes.overrun());
     return !bytes.overrun();
 }
 

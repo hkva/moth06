@@ -328,12 +328,13 @@ public:
     bool overrun() { return m_overrun; };
 
     void seek(usize offset) { m_cur_byte = offset; }
+    usize tell() { return m_cur_byte; }
 
     template <typename T>
     T read() {
         // XXX(HK): Big-endian?
         T result = T();
-        if ((m_overrun |= (m_cur_byte + sizeof(T) >= m_bytes.length()))) {
+        if ((m_overrun |= (m_cur_byte + sizeof(T) > m_bytes.length()))) {
             return T();
         }
         mem::copy(&result, (const T*)&m_bytes[m_cur_byte]);
