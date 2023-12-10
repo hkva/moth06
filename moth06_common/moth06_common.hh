@@ -114,6 +114,26 @@ static inline bool equal(const T* mem1, const T* mem2, usize count = 1) {
 
 namespace str {
 
+static inline bool basename(char* str) {
+    char* last_delim = nullptr;
+    for (usize i = 0; str[i] != '\0'; ++i) {
+#ifdef MOTH06_WINDOWS
+        if (str[i] == '\\') {
+            last_delim = &str[i];
+        }
+#else
+        if (str[i] == '/') {
+            last_delim = &str[i];
+        }
+#endif
+    }
+    if (last_delim != nullptr) {
+        *last_delim = '\0';
+        return true;
+    }
+    return false;
+}
+
 static inline bool equal(const char* s1, const char* s2) {
     return !std::strcmp(s1, s2);
 }
@@ -131,6 +151,32 @@ static inline const char* extension(const char* str) {
         }
     }
     return result;
+}
+
+}
+
+//
+// Filesystem helpers
+//
+
+namespace fs {
+
+static inline bool copy(const char* src, const char* dst) {
+    std::FILE* fsrc = std::fopen(src, "rb");
+    std::FILE* fdst = std::fopen(dst, "wb");
+    if (!fsrc || !fdst) {
+        return false;
+    }
+    u8 buffer[512] = { };
+    while (true) {
+        size_t n = std::fread(buffer, sizeof(u8), ARRLEN(buffer), fsrc);
+        std::fwrite(buffer, sizeof(u8), n, fdst);
+        if (n != sizeof(buffer)) {
+            break;
+        }
+    }
+    std::fclose(fsrc); std::fclose(fdst);
+    return true;
 }
 
 }

@@ -3,11 +3,13 @@
 
 #include "moth06_common/moth06_common.hh"
 
+#define GAME_API extern "C"
+
 //
 // Error handling
 //
 
-const char* get_parser_error();
+GAME_API const char* get_parser_error();
 
 //
 // PBG archive parsing
@@ -26,10 +28,10 @@ struct PBGEntry {
 };
 
 // Only reads entry info table, not actual entry data
-bool read_pbg_entries(Span<const u8> archive, Array<PBGEntry>& entries);
+GAME_API bool read_pbg_entries(Span<const u8> archive, Array<PBGEntry>& entries);
 
 // Read and decompress archive entry
-bool read_pbg_entry_data(Span<const u8> archive, const PBGEntry& file, Array<u8>& data);
+GAME_API bool read_pbg_entry_data(Span<const u8> archive, const PBGEntry& file, Array<u8>& data);
 
 //
 // ANM animation parsing
@@ -105,7 +107,7 @@ struct Animation {
     Array<AnimationScript> scripts;
 };
 
-bool read_anm(Span<const u8> file, Animation& anim);
+GAME_API bool read_anm(Span<const u8> file, Animation& anim);
 
 //
 // Game simulation
@@ -121,7 +123,7 @@ struct Game {
     GameAppInterface app;
 };
 
-void create_game(Game* game, const GameAppInterface* app_interface);
+GAME_API void create_game(Game* game, const GameAppInterface* app_interface);
 
 #endif // _MOTH06_CORE_HH_
 

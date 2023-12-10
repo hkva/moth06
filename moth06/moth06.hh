@@ -5,6 +5,7 @@
 #include "moth06_game/moth06_game.hh"
 
 #include <SDL.h>
+#include <SDL_main.h>
 
 #define APP_TITLE   "moth06"
 #define APP_WIDTH   640

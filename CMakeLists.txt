@@ -42,7 +42,7 @@ target_compile_features(moth06-common PUBLIC cxx_std_23)
 # Core library
 #
 
-add_library(moth06-game STATIC
+add_library(moth06-game SHARED
     "${CMAKE_CURRENT_LIST_DIR}/moth06_game/moth06_game.cc"
     "${CMAKE_CURRENT_LIST_DIR}/moth06_game/moth06_game_files.cc"
 )
@@ -55,7 +55,7 @@ target_link_libraries(moth06-game PUBLIC moth06-common)
 add_executable(moth06
     "${CMAKE_CURRENT_LIST_DIR}/moth06/moth06.cc"
 )
-target_link_libraries(moth06 PUBLIC moth06-game)
+target_link_libraries(moth06 PUBLIC moth06-common)
 
 #
 # Tests
