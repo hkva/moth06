@@ -1,7 +1,8 @@
-#include "moth06_common.hh"
+#include "moth06_common/moth06_common.hh"
+#include "moth06_game/moth06_game.hh"
+
 #include "tests.hh"
 
-#include "moth06_core.hh"
 
 struct Asset {
     PBGEntry info;

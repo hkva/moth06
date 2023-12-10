@@ -17,7 +17,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 #
 
 add_library(moth06-common STATIC
-    "${CMAKE_CURRENT_LIST_DIR}/moth06_common.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/moth06_common/moth06_common.cc"
 )
 target_include_directories(moth06-common PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}"
@@ -42,20 +42,20 @@ target_compile_features(moth06-common PUBLIC cxx_std_23)
 # Core library
 #
 
-add_library(moth06-core SHARED
-    "${CMAKE_CURRENT_LIST_DIR}/moth06_core_files.cc"
-    "${CMAKE_CURRENT_LIST_DIR}/moth06_core_game.cc"
+add_library(moth06-game STATIC
+    "${CMAKE_CURRENT_LIST_DIR}/moth06_game/moth06_game.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/moth06_game/moth06_game_files.cc"
 )
-target_link_libraries(moth06-core PUBLIC moth06-common)
+target_link_libraries(moth06-game PUBLIC moth06-common)
 
 #
 # SDL app
 #
 
 add_executable(moth06
-    "${CMAKE_CURRENT_LIST_DIR}/moth06.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/moth06/moth06.cc"
 )
-target_link_libraries(moth06 PUBLIC moth06-core)
+target_link_libraries(moth06 PUBLIC moth06-game)
 
 #
 # Tests
@@ -67,7 +67,7 @@ if(TRUE)
     function(moth06_test test_name test_source)
         message("thing: ${test_name}")
         add_executable("moth06-test-${test_name}" "${test_source}")
-        target_link_libraries("moth06-test-${test_name}" PRIVATE moth06-core)
+        target_link_libraries("moth06-test-${test_name}" PRIVATE moth06-game)
         add_test(
             NAME "${test_name}"
             COMMAND "$<TARGET_FILE:moth06-test-${test_name}>"

@@ -1,4 +1,4 @@
-#include "moth06_common.hh"
+#include "moth06_common/moth06_common.hh"
 #include "tests.hh"
 
 #include <vector>

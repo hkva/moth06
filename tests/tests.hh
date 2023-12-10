@@ -5,7 +5,7 @@ static int test_alloc_tracker = 0;
 #define MOTH06_ALLOC_TRACKER test_alloc_tracker
 #define CHECK_LEAKS() ASSERT(test_alloc_tracker == 0 && "memory leak!")
 
-#include "moth06_core.hh"
+#include "moth06_game/moth06_game.hh"
 
 #include <cstdio>
 
