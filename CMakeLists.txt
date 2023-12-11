@@ -54,6 +54,7 @@ target_link_libraries(moth06-game PUBLIC moth06-common)
 
 add_executable(moth06
     "${CMAKE_CURRENT_LIST_DIR}/moth06/moth06.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/moth06/moth06_gfx.cc"
 )
 target_link_libraries(moth06 PUBLIC moth06-common)
 
@@ -97,6 +98,7 @@ target_include_directories(imgui PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9"
 )
 target_compile_features(imgui PRIVATE cxx_std_23)
+target_link_libraries(moth06 PRIVATE imgui)
 
 #
 # Dep: FluidSynth

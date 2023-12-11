@@ -1,6 +1,6 @@
 #include "moth06.hh"
-#include "SDL_events.h"
-#include "SDL_loadso.h"
+#include "SDL_video.h"
+#include "imgui.h"
 #include "moth06_common/moth06_common.hh"
 
 Application a = { };
@@ -15,6 +15,57 @@ static void moth06_dbg_game(const char* message) {
 static bool moth06_load_file(const char* path, Array<u8>& data) {
     (void)path; (void)data;
     return false;
+}
+
+enum class DebugScreen {
+    None,
+    Test,
+};
+
+static void draw_debug_ui() {
+    // ImGui::ShowDemoWindow();
+    static DebugScreen screen = DebugScreen::None;
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Reload game code")) {
+                a.state |= APP_STATE_WANTS_RELOAD;
+            }
+            if (ImGui::MenuItem("Hide debug menu")) {
+                a.state ^= APP_STATE_DEBUG_MENU;
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Quit")) {
+                a.state |= APP_STATE_WANTS_QUIT;
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View")) {
+            static struct {
+                const char* name;
+                DebugScreen screen;
+            } screens[] = {
+                { .name = "Game", .screen = DebugScreen::None },
+                { .name = "Test", .screen = DebugScreen::Test },
+            };
+            for (usize i = 0; i < ARRLEN(screens); ++i) {
+                if (ImGui::MenuItem(screens[i].name, NULL, screen == screens[i].screen)) {
+                    screen = screens[i].screen;
+                }
+                if (i == 0) {
+                    ImGui::Separator();
+                }
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    switch (screen) {
+        case DebugScreen::None: {} break;
+        case DebugScreen::Test: {
+            ImGui::ShowDemoWindow();
+        } break;
+    }
 }
 
 static bool reload_game() {
@@ -60,23 +111,24 @@ static void moth06_main(usize argc, const char* argv[]) {
         }
     }
 
-    reload_game();
-
     if (!(a.flags & APP_FLAG_HEADLESS)) {
-        if (!(a.wnd = SDL_CreateWindow(APP_TITLE,
-                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, APP_WIDTH, APP_HEIGHT, 0))) {
+        if (!(a.wnd = SDL_CreateWindow(APP_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, APP_WIDTH, APP_HEIGHT, SDL_WINDOW_HIDDEN))) {
             die("Failed to create game window: %s", SDL_GetError());
         }
-        if (!(a.r = SDL_CreateRenderer(a.wnd, -1, SDL_RENDERER_ACCELERATED))) {
-            die("Failed to create renderer: %s", SDL_GetError());
-        }
+        const gfx::InitOptions opts = {
+            .requested_backend = gfx::Backend::SDLRenderer,
+        };
+        gfx::init(&opts);
     }
+
+    reload_game();
 
     // NOTE(HK):
     //   * Game simulation must happen at 60hz (except for when testing demos!)
     //   * When the user presses the X to close the window, the game instantly
     //     closes and nothing is saved. The game code needs to be ready to die
     //     at any time without bad things happening.
+    SDL_ShowWindow(a.wnd);
     do {
         // Reload code
         if (a.state & APP_STATE_WANTS_RELOAD) {
@@ -88,19 +140,35 @@ static void moth06_main(usize argc, const char* argv[]) {
         if (!(a.flags & APP_FLAG_HEADLESS)) {
             SDL_Event evt = { };
             while (SDL_PollEvent(&evt)) {
+                gfx::handle_ui_event(&evt);
                 switch (evt.type) {
                     case SDL_QUIT: {
                         a.state |= APP_STATE_WANTS_QUIT;
                     } break;
                     case SDL_KEYDOWN: {
                         switch (evt.key.keysym.sym){
+                            case SDLK_q: {
+                                a.state |= APP_STATE_WANTS_QUIT;
+                            } break;
                             case SDLK_r: {
                                 a.state |= APP_STATE_WANTS_RELOAD;
+                            } break;
+                            case SDLK_F3: {
+                                a.state ^= APP_STATE_DEBUG_MENU;
                             } break;
                         }
                     } break;
                 };
             }
+        }
+
+        // Draw screen
+        if (!(a.flags & APP_FLAG_HEADLESS)) {
+            gfx::begin_frame();
+            if (a.state & APP_STATE_DEBUG_MENU) {
+                draw_debug_ui();
+            }
+            gfx::end_frame();
         }
     } while (!(a.state & APP_STATE_WANTS_QUIT));
 }

@@ -11,6 +11,6 @@ static const char* fmt_(const char* fmt, ...) {
 
 void create_game(Game* game, const GameAppInterface* app_interface) {
     game->app = *app_interface;
-    DBG("Connected game!");
+    DBG("Connected");
 }
 
