@@ -29,6 +29,7 @@ void gfx::init(const InitOptions* opts) {
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
     ImGui::GetStyle().ScrollbarRounding = 0.0f;
+    ImGui::GetIO().IniFilename = nullptr;
 
     switch (_gfx.backend) {
         case Backend::SDLRenderer: {
