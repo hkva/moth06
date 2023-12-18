@@ -115,8 +115,8 @@ GAME_API bool read_anm(Span<const u8> file, Animation& anim);
 
 // Game->App interface
 struct GameAppInterface {
-    bool(*load_asset)(const char* path, Array<u8>& data);
     void(*dbg)(const char* message);
+    bool(*load_asset)(const char* path, Array<u8>& data);
 };
 
 struct Game {

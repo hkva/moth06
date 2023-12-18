@@ -71,9 +71,9 @@ int main(void) {
 
     {
         u64 then = tests::now();
-        for (u32 i = 0; i < 1000; ++i) {
+        for (u32 i = 1; i <= 1000; ++i) {
             std::vector<u32> test_vec = std::vector<u32>();
-            for (u32 j = 0; j < 1000; ++j) {
+            for (u32 j = 1; j <= 1000; ++j) {
                 test_vec.push_back(i % j);
             }
         }
@@ -81,9 +81,9 @@ int main(void) {
         u64 base_time = tests::now() - then;
         std::printf("std::vector bench:         %lluns\t100.00%%\n", base_time);
         then = tests::now();
-        for (u32 i = 0; i < 1000; ++i) {
+        for (u32 i = 1; i <= 1000; ++i) {
             Array<u32> test_arr = Array<u32>(AllocationStrategy::Linear);
-            for (u32 j = 0; j < 1000; ++j) {
+            for (u32 j = 1; j <= 1000; ++j) {
                 test_arr.append(i % j);
             }
         }
@@ -91,9 +91,9 @@ int main(void) {
         u64 t = tests::now() - then;
         std::printf("Array (f(x) = x) bench:    %lluns\t%.02f%%\n", t, (f64)t / (f64)base_time * 100.0f);
         then = tests::now();
-        for (u32 i = 0; i < 1000; ++i) {
+        for (u32 i = 1; i <= 1000; ++i) {
             Array<u32> test_arr = Array<u32>(AllocationStrategy::Double);
-            for (u32 j = 0; j < 1000; ++j) {
+            for (u32 j = 1; j <= 1000; ++j) {
                 test_arr.append(i % j);
             }
         }
@@ -101,9 +101,9 @@ int main(void) {
         t = tests::now() - then;
         std::printf("Array (f(x) = 2x) bench:   %lluns\t%.02f%%\n", t, (f64)t / (f64)base_time * 100.0f);
         then = tests::now();
-        for (u32 i = 0; i < 1000; ++i) {
+        for (u32 i = 1; i <= 1000; ++i) {
             Array<u32> test_arr = Array<u32>(AllocationStrategy::Double);
-            for (u32 j = 0; j < 1000; ++j) {
+            for (u32 j = 1; j <= 1000; ++j) {
                 test_arr.append(i % j);
             }
         }

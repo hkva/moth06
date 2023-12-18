@@ -5,8 +5,8 @@
 #include "moth06_common/moth06_common.hh"
 #include "moth06_game/moth06_game.hh"
 
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
-#include <SDL_main.h>
 
 #include "imgui.h"
 

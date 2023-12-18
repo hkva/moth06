@@ -1,5 +1,4 @@
 #include "moth06.hh"
-#include "SDL_video.h"
 #include "imgui.h"
 #include "moth06_common/moth06_common.hh"
 
@@ -69,6 +68,10 @@ static void draw_debug_ui() {
 }
 
 static bool reload_game() {
+#ifdef MOTH06_WINDOWS
+    const char* dll_path_src = "moth06-game.dlll";
+    const char* dll_path_dst = "moth06-game-dev.dll";
+#endif
 #ifdef MOTH06_OSX
     const char* dll_path_src = "libmoth06-game.dylib";
     const char* dll_path_dst = "libmoth06-game-dev.dylib";
@@ -173,12 +176,39 @@ static void moth06_main(usize argc, const char* argv[]) {
     } while (!(a.state & APP_STATE_WANTS_QUIT));
 }
 
+#ifdef MOTH06_WINDOWS
+
+#include <Windows.h>
+
+int WinMain(HINSTANCE idc1, HINSTANCE idc2, LPSTR idc3, int idc4) {
+    (void)idc1; (void)idc2; (void)idc3; (void)idc4;
+    // Reset working directory
+    char path[MAX_PATH] = { 0 };
+    if (!GetModuleFileNameA(NULL, path, sizeof(path))) {
+        die("Windows: Failed to get executable path");
+    }
+    if (!str::basename(path)) {
+        die("Windows: Failed to truncate executable path (%s)", path);
+    }
+    if (!SetCurrentDirectoryA(path)) {
+        die("Windows: Failed to reset working directory to %s", path);
+    }
+
+    if (AllocConsole()) {
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+    }
+
+    moth06_main(__argc, (const char**)__argv);
+}
+
+#else
+
 #ifdef MOTH06_OSX
 #   include <mach-o/dyld.h>
 #   include <unistd.h>
 #endif
 
-// XXX(HK): SDLmain
 int main(int argc, const char* argv[]) {
     char path[1024] = { 0 }; u32 path_size = sizeof(path);
 #ifdef MOTH06_OSX
@@ -197,4 +227,6 @@ int main(int argc, const char* argv[]) {
     moth06_main(argc, argv);
     return 0;
 }
+
+#endif
 

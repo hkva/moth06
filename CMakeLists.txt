@@ -13,71 +13,38 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 #
-# Common code
+# HK standard library replacement
 #
 
-add_library(moth06-common STATIC
-    "${CMAKE_CURRENT_LIST_DIR}/moth06_common/moth06_common.cc"
+add_library(hk STATIC
+    "${CMAKE_CURRENT_LIST_DIR}/src/hk.cc"
 )
-target_include_directories(moth06-common PUBLIC
-    "${CMAKE_CURRENT_LIST_DIR}"
+target_include_directories(hk PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/src"
 )
 
-# Compiler options
+# Additional compiler flags
 if(MSVC)
-    target_compile_options(moth06-common PUBLIC
+    target_compile_options(hk PUBLIC
         /W4
     )
 else()
     # Assume GCC-like
-    target_compile_options(moth06-common PUBLIC
-        -Wall -Wextra -g
+    target_compile_options(hk PUBLIC
+        -Wall -Wextra
     )
 endif()
 
 # C++23
-target_compile_features(moth06-common PUBLIC cxx_std_23)
+target_compile_features(hk PUBLIC cxx_std_23)
 
-#
-# Core library
-#
-
-add_library(moth06-game SHARED
-    "${CMAKE_CURRENT_LIST_DIR}/moth06_game/moth06_game.cc"
-    "${CMAKE_CURRENT_LIST_DIR}/moth06_game/moth06_game_files.cc"
-)
-target_link_libraries(moth06-game PUBLIC moth06-common)
-
-#
-# SDL app
-#
-
-add_executable(moth06
-    "${CMAKE_CURRENT_LIST_DIR}/moth06/moth06.cc"
-    "${CMAKE_CURRENT_LIST_DIR}/moth06/moth06_gfx.cc"
-)
-target_link_libraries(moth06 PUBLIC moth06-common)
-
-#
 # Tests
-#
-
 if(TRUE)
     enable_testing()
 
-    function(moth06_test test_name test_source)
-        message("thing: ${test_name}")
-        add_executable("moth06-test-${test_name}" "${test_source}")
-        target_link_libraries("moth06-test-${test_name}" PRIVATE moth06-game)
-        add_test(
-            NAME "${test_name}"
-            COMMAND "$<TARGET_FILE:moth06-test-${test_name}>"
-            WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-        )
-    endfunction()
-
-    moth06_test(common      "${CMAKE_CURRENT_LIST_DIR}/tests/common.cc")
-    moth06_test(read-files  "${CMAKE_CURRENT_LIST_DIR}/tests/read_files.cc")
+    add_executable("test-hk" "${CMAKE_CURRENT_LIST_DIR}/src/test_hk.cc")
+    target_link_libraries("test-hk" PRIVATE "hk")
+    add_test(NAME "test-hk" COMMAND "$<TARGET_FILE:test-hk>")
 endif()
 
 #
@@ -98,7 +65,6 @@ target_include_directories(imgui PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9"
 )
 target_compile_features(imgui PRIVATE cxx_std_23)
-target_link_libraries(moth06 PRIVATE imgui)
 
 #
 # Dep: FluidSynth
@@ -132,8 +98,6 @@ else()
 endif()
 target_include_directories(imgui PRIVATE ${SDL_INCLUDE_DIRS})
 target_link_libraries(imgui PRIVATE ${SDL_LIBRARIES})
-target_include_directories(moth06 PRIVATE ${SDL_INCLUDE_DIRS})
-target_link_libraries(moth06 PRIVATE ${SDL_LIBRARIES})
 
 #
 # Dep: stb_image
