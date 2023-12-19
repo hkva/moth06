@@ -19,10 +19,20 @@
 #   define HK_PLATFORM_NAME "Windows"
 #endif
 
+#ifdef __MACH__
+#   define HK_MACOS
+#   define HK_PLATFORM_NAME "MacOS"
+#endif
+
 #ifdef _MSC_VER
 #   define HK_MSVC
 #   define HK_COMPILER_NAME "MSVC"
 #   pragma warning(disable: 4706) // Assignment within conditional expression
+#endif
+
+#ifdef __clang__
+#   define HK_CLANG
+#   define HK_COMPILER_NAME "clang"
 #endif
 
 //
