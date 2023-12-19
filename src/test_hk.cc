@@ -85,7 +85,7 @@ int main() {
             hk::u64 base_time = 0;
             {
                 const hk::u64 t1 = hk::sys::get_cpu_ticks();
-                for (hk::i32 i = 1; i <= 1000; ++i) {
+                for (hk::i32 i = 1; i <= 10000; ++i) {
                     std::vector<hk::i32> test_vec = std::vector<hk::i32>();
                     for (hk::i32 j = 1; j <= 1000; ++j) {
                         test_vec.push_back(i % j);
@@ -97,7 +97,7 @@ int main() {
             }
             {
                 const hk::u64 t1 = hk::sys::get_cpu_ticks();
-                for (hk::i32 i = 1; i <= 1000; ++i) {
+                for (hk::i32 i = 1; i <= 10000; ++i) {
                     hk::Array<hk::i32> test_vec = hk::Array<hk::i32>();
                     for (hk::i32 j = 1; j <= 1000; ++j) {
                         test_vec.append(i % j);

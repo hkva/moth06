@@ -38,6 +38,15 @@ endif()
 # C++23
 target_compile_features(hk PUBLIC cxx_std_23)
 
+#
+# Game executable
+#
+
+add_executable(moth06
+    "${CMAKE_CURRENT_LIST_DIR}/src/moth06.cc"
+)
+target_link_libraries(moth06 PRIVATE hk SDL2::SDL2 SDL2::SDL2main)
+
 # Tests
 if(TRUE)
     enable_testing()
@@ -48,60 +57,11 @@ if(TRUE)
 endif()
 
 #
-# Dep: Dear ImGui
-# https://github.com/ocornut/imgui
-#
-add_library(imgui STATIC
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9/imgui.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9/imgui_demo.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9/imgui_draw.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9/imgui_tables.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9/imgui_widgets.cpp"
-
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9/backends/imgui_impl_sdl2.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9/backends/imgui_impl_sdlrenderer2.cpp"
-)
-target_include_directories(imgui PUBLIC
-    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.89.9"
-)
-target_compile_features(imgui PRIVATE cxx_std_23)
-
-#
-# Dep: FluidSynth
-# https://www.fluidsynth.org/
-#
-if(WIN32)
-    set(FLUIDSYNTH_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/thirdparty/fluidsynth-2.3.4-win64/include")
-    set(FLUIDSYNTH_LIBRARIES    "${PROJECT_SOURCE_DIR}/thirdparty/fluidsynth-2.3.4-win64/lib/fluidsynth.lib")
-elseif(APPLE)
-    # Homebrew
-    set(FLUIDSYNTH_INCLUDE_DIRS "/opt/homebrew/include")
-    set(FLUIDSYNTH_LIBRARIES    "/opt/homebrew/lib/libfluidsynth.dylib")
-else()
-    # XXX: Linux
-endif()
-
-#
 # Dep: SDL
 # https://www.libsdl.org/
 #
-if(WIN32)
-    set(SDL_INCLUDE_DIRS    "${PROJECT_SOURCE_DIR}/thirdparty/SDL2-2.28.5-win64/include")
-    set(SDL_LIBRARIES       "${PROJECT_SOURCE_DIR}/thirdparty/SDL2-2.28.5-win64/lib/x64/SDL2.lib")
-    set(SDL_DLLS            "${PROJECT_SOURCE_DIR}/thirdparty/SDL2-2.28.5-win64/lib/x64/SDL2.dll")
-elseif(APPLE)
-    # Homebrew
-    set(SDL_INCLUDE_DIRS    "/opt/homebrew/include/SDL2")
-    set(SDL_LIBRARIES       "/opt/homebrew/lib/libSDL2.dylib")
-else()
-    # XXX: Linux
-endif()
-target_include_directories(imgui PRIVATE ${SDL_INCLUDE_DIRS})
-target_link_libraries(imgui PRIVATE ${SDL_LIBRARIES})
+set(SDL_SHARED  ON  CACHE BOOL "" FORCE)
+set(SDL_STATIC  OFF CACHE BOOL "" FORCE)
+set(SDL_TEST    OFF CACHE BOOL "" FORCE)
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/SDL-release-2.28.5")
 
-#
-# Dep: stb_image
-# https://github.com/nothings/stb/blob/master/stb_image.h
-#
-add_library(stb_image STATIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stb/stb_image.c")
-target_include_directories(stb_image PUBLIC "${CMAKE_CURRENT_LIST_DIR}/thirdparty/stb")
