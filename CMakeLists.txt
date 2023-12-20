@@ -58,6 +58,7 @@ set_target_properties(game PROPERTIES OUTPUT_NAME "moth06_game")
 
 add_executable(moth06
     "${CMAKE_CURRENT_LIST_DIR}/src/moth06.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/src/moth06_gfx.cc"
 )
 target_link_libraries(moth06 PRIVATE hk SDL2::SDL2 SDL2::SDL2main)
 if(WIN32)
