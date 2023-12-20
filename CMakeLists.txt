@@ -28,6 +28,9 @@ if(MSVC)
     target_compile_options(hk PUBLIC
         /W4
     )
+    target_compile_definitions(hk PUBLIC
+        _CRT_SECURE_NO_WARNINGS
+    )
 else()
     # Assume GCC-like
     target_compile_options(hk PUBLIC
@@ -39,6 +42,17 @@ endif()
 target_compile_features(hk PUBLIC cxx_std_23)
 
 #
+# Game library
+# NOTE(HK): This will eventually get an option to link statically for release builds
+#
+
+add_library(game SHARED
+    "${CMAKE_CURRENT_LIST_DIR}/src/game.cc"
+)
+target_link_libraries(game PRIVATE hk)
+set_target_properties(game PROPERTIES OUTPUT_NAME "moth06_game")
+
+#
 # Game executable
 #
 
@@ -46,6 +60,9 @@ add_executable(moth06
     "${CMAKE_CURRENT_LIST_DIR}/src/moth06.cc"
 )
 target_link_libraries(moth06 PRIVATE hk SDL2::SDL2 SDL2::SDL2main)
+if(WIN32)
+    set_target_properties(moth06 PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
 
 # Tests
 if(TRUE)

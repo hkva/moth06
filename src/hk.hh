@@ -2,6 +2,7 @@
 #define _HK_HH_
 
 #include <cassert>
+#include <cstdarg>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -27,6 +28,7 @@
 #ifdef _MSC_VER
 #   define HK_MSVC
 #   define HK_COMPILER_NAME "MSVC"
+#   define HK_DLL_EXPORT __declspec(dllexport)
 #   pragma warning(disable: 4706) // Assignment within conditional expression
 #endif
 
@@ -48,6 +50,7 @@
 #define HK_STRINGIFY_(x) #x
 #define HK_STRINGIFY(x) HK_STRINGIFY_(x)
 
+#define HK_DLLAPI
 
 namespace hk {
 
@@ -290,6 +293,18 @@ public:
 //
 
 namespace sys {
+
+// Set the current working directory
+bool chdir(const char* path);
+
+// Copy a file
+bool copy_file(const char* src_path, const char* dst_path);
+
+// Create a developer console for stdout/stderr
+void create_console();
+
+// Get the absolute path of the executable
+bool get_exe_path(char* path, usize len);
 
 // Get the CPU timestamp
 u64 get_cpu_ticks();
