@@ -60,7 +60,7 @@ add_executable(moth06
     "${CMAKE_CURRENT_LIST_DIR}/src/moth06.cc"
     "${CMAKE_CURRENT_LIST_DIR}/src/moth06_gfx.cc"
 )
-target_link_libraries(moth06 PRIVATE hk SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(moth06 PRIVATE hk SDL2::SDL2 SDL2::SDL2main imgui)
 if(WIN32)
     set_target_properties(moth06 PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
@@ -73,6 +73,27 @@ if(TRUE)
     target_link_libraries("test-hk" PRIVATE "hk")
     add_test(NAME "test-hk" COMMAND "$<TARGET_FILE:test-hk>")
 endif()
+
+#
+# Dep: Dear ImGui
+# https://github.com/ocornut/imgui
+#
+add_library(imgui STATIC
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90/imgui.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90/imgui_demo.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90/imgui_draw.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90/imgui_tables.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90/imgui_widgets.cpp"
+
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90/backends/imgui_impl_sdl2.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90/backends/imgui_impl_sdlrenderer2.cpp"
+)
+target_include_directories(imgui PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90"
+)
+target_link_libraries(imgui PRIVATE
+    SDL2::SDL2
+)
 
 #
 # Dep: SDL

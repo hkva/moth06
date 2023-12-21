@@ -4,6 +4,7 @@
 #include "hk.hh"
 #include "game.hh"
 
+#include <imgui.h>
 #include <SDL.h>
 
 //
