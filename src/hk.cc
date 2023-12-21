@@ -3,6 +3,10 @@
 #ifdef HK_WINDOWS
 #   include <Windows.h>
 #endif
+#ifdef HK_MACOS
+#   include <unistd.h>
+#   include <mach-o/dyld.h>
+#endif
 
 //
 // System API
@@ -12,7 +16,7 @@ bool hk::sys::chdir(const char* path) {
 #ifdef HK_WINDOWS
     return SetCurrentDirectoryA(path);
 #else
-#   error not implemented
+    return ::chdir(path) == 0;
 #endif
 }
 
@@ -47,6 +51,9 @@ void hk::sys::create_console() {
 bool hk::sys::get_exe_path(char* path, usize len) {
 #ifdef HK_WINDOWS
     return GetModuleFileNameA(NULL, path, (DWORD)len);
+#elif defined(HK_MACOS)
+    u32 len2 = (u32)len;
+    return _NSGetExecutablePath(path, &len2) == 0;
 #else
 #   error not implemented
 #endif

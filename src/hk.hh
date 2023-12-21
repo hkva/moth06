@@ -35,6 +35,7 @@
 #ifdef __clang__
 #   define HK_CLANG
 #   define HK_COMPILER_NAME "clang"
+#   define HK_DLL_EXPORT
 #endif
 
 //

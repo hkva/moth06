@@ -18,6 +18,10 @@ static void load_game() {
     const char* game_dll_src = "moth06_game.dll";
     const char* game_dll_dst = "moth06_game_loaded.dll";
 #endif
+#ifdef HK_MACOS
+    const char* game_dll_src = "libmoth06_game.dylib";
+    const char* game_dll_dst = "libmoth06_game_loaded.dylib";
+#endif
     if (a.game_lib) {
         SDL_UnloadObject(a.game_lib);
     }

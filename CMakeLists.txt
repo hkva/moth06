@@ -91,6 +91,8 @@ add_library(imgui STATIC
 target_include_directories(imgui PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}/thirdparty/imgui-1.90"
 )
+# C++23
+target_compile_features(imgui PUBLIC cxx_std_23)
 target_link_libraries(imgui PRIVATE
     SDL2::SDL2
 )
