@@ -25,6 +25,11 @@
 #   define HK_PLATFORM_NAME "MacOS"
 #endif
 
+#ifdef __linux__
+#   define HK_LINUX
+#   define HK_PLATFORM_NAME "Linux"
+#endif
+
 #ifdef _MSC_VER
 #   define HK_MSVC
 #   define HK_COMPILER_NAME "MSVC"
@@ -35,6 +40,12 @@
 #ifdef __clang__
 #   define HK_CLANG
 #   define HK_COMPILER_NAME "clang"
+#   define HK_DLL_EXPORT
+#endif
+
+#if defined(__GNUC__) && !defined(HK_CLANG)
+#   define HK_GCC
+#   define HK_COMPILER_NAME "GCC"
 #   define HK_DLL_EXPORT
 #endif
 
@@ -117,6 +128,34 @@ template <typename T>
 static inline void copy(T* dst, const T* src, usize count = 1) {
     HK_DEBUG_ASSERT(dst && src && count);
     std::memcpy((void*)dst, (const void*)src, sizeof(T) * count);
+}
+
+}
+
+//
+// String utilities
+//
+
+namespace str {
+
+static inline bool dirname(char* path) {
+    char* last_delim = nullptr;
+    for (usize i = 0; path[i] != '\0'; ++i) {
+        if (path[i + 1] != '\0') {
+#ifdef HK_WINDOWS
+            if (path[i] == '\\') {
+                last_delim = &path[i];
+            }
+#endif
+            if (path[i] == '/') {
+                last_delim = &path[i];
+            }
+        }
+    }
+    if (last_delim) {
+        *last_delim = '\0';
+    }
+    return last_delim != nullptr;
 }
 
 }

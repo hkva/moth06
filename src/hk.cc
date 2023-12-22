@@ -7,6 +7,10 @@
 #   include <unistd.h>
 #   include <mach-o/dyld.h>
 #endif
+#ifdef HK_LINUX
+#   include <x86intrin.h>
+#   include <unistd.h>
+#endif
 
 //
 // System API
@@ -54,6 +58,8 @@ bool hk::sys::get_exe_path(char* path, usize len) {
 #elif defined(HK_MACOS)
     u32 len2 = (u32)len;
     return _NSGetExecutablePath(path, &len2) == 0;
+#elif defined(HK_LINUX)
+    return readlink("/proc/self/exe", path, len) != -1;
 #else
 #   error not implemented
 #endif
@@ -73,6 +79,8 @@ hk::u64 hk::sys::get_cpu_ticks() {
 #else
     return (u64)__builtin_readcyclecounter();
 #endif
+#elif defined(HK_GCC)
+    return __rdtsc();
 #else
 #   error not implemented
 #endif

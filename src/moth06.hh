@@ -30,6 +30,7 @@ static inline void dbgmsg(const char* fmt, ...) {
 
     // XXX
     std::fprintf(stderr, "+%.3f | %s\n", (f32)SDL_GetTicks() / 1e3f, buf);
+    std::fflush(stderr);
 }
 
 //

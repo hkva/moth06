@@ -22,6 +22,10 @@ static void load_game() {
     const char* game_dll_src = "libmoth06_game.dylib";
     const char* game_dll_dst = "libmoth06_game_loaded.dylib";
 #endif
+#ifdef HK_LINUX
+    const char* game_dll_src = "./libmoth06_game.so";
+    const char* game_dll_dst = "./libmoth06_game_loaded.so";
+#endif
     if (a.game_lib) {
         SDL_UnloadObject(a.game_lib);
     }
@@ -42,6 +46,15 @@ int main(int argc, char** argv) {
     hk::sys::create_console();
 
     a.argc = argc; a.argv = (const char**)argv;
+
+    char exe_dir[512] = { };
+    if (!hk::sys::get_exe_path(exe_dir, sizeof(exe_dir))) {
+        HK_ASSERT(0);
+    }
+    hk::str::dirname(exe_dir);
+    if (!hk::sys::chdir(exe_dir)) {
+        die("Failed to change working directory to %s", exe_dir);
+    }
 
     SDL_version sdlv_c = { }; SDL_VERSION(&sdlv_c);
     SDL_version sdlv_l = { }; SDL_GetVersion(&sdlv_l);
