@@ -3,4 +3,6 @@
 
 #include "game.hh"
 
+extern const EngineInterface* ei;
+
 #endif // _GAME_PRIVATE_HH_

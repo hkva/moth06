@@ -130,6 +130,12 @@ static inline void copy(T* dst, const T* src, usize count = 1) {
     std::memcpy((void*)dst, (const void*)src, sizeof(T) * count);
 }
 
+template <typename T>
+static inline bool equal( const T* mem1, const T* mem2, usize count = 1 ) {
+    HK_ASSERT( mem1 && mem2 && count );
+    return !std::memcmp( (const void*)mem1, (const void*)mem2, sizeof( T ) * count );
+}
+
 }
 
 //
@@ -215,7 +221,8 @@ private:
     usize   m_capacity = 0;
 public:
     Array() = default;
-    Array(const Array<T>& other) { copy(other); }
+    Array(const Array<T>& other) : Array() { copy(other); }
+    Array( usize size ) : Array() { resize( size ); }
     ~Array() { resize(0); mem::free(m_buffer); }
 
     Array<T>& operator=(const Array<T>& other) { copy(other); return *this; }

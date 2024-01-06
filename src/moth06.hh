@@ -22,7 +22,7 @@ static inline void die(const char* fmt, ...) {
     HK_ASSERT(0);
 }
 
-static inline void dbgmsg(const char* fmt, ...) {
+static inline void dbgmsg_(const char* fmt, ...) {
     char buf[1024];
     std::va_list va; va_start(va, fmt);
     std::vsnprintf(buf, sizeof(buf), fmt, va);
@@ -39,6 +39,7 @@ static inline void dbgmsg(const char* fmt, ...) {
 
 enum {
     APP_STATE_WANTS_QUIT = 1 << 0,
+    APP_STATE_DEBUG_UI = 1 << 1,
 };
 
 struct App {
@@ -49,6 +50,9 @@ struct App {
 };
 
 extern App a;
+
+// tests
+void moth06_test();
 
 //
 // Graphics
@@ -65,6 +69,9 @@ struct GfxInitParams {
 };
 
 void init_gfx(const GfxInitParams& params);
+void begin_frame();
+void end_frame();
+void handle_ui_event( const SDL_Event* evt );
 
 
 #endif // _MOTH06_HH_

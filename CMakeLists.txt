@@ -59,19 +59,11 @@ set_target_properties(game PROPERTIES OUTPUT_NAME "moth06_game")
 add_executable(moth06
     "${CMAKE_CURRENT_LIST_DIR}/src/moth06.cc"
     "${CMAKE_CURRENT_LIST_DIR}/src/moth06_gfx.cc"
+    "${CMAKE_CURRENT_LIST_DIR}/src/moth06_test.cc"
 )
 target_link_libraries(moth06 PRIVATE hk SDL2::SDL2 SDL2::SDL2main imgui)
 if(WIN32)
     set_target_properties(moth06 PROPERTIES WIN32_EXECUTABLE TRUE)
-endif()
-
-# Tests
-if(TRUE)
-    enable_testing()
-
-    add_executable("test-hk" "${CMAKE_CURRENT_LIST_DIR}/src/test_hk.cc")
-    target_link_libraries("test-hk" PRIVATE "hk")
-    add_test(NAME "test-hk" COMMAND "$<TARGET_FILE:test-hk>")
 endif()
 
 #

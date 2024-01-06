@@ -1,5 +1,7 @@
 #include "moth06.hh"
 
+#define dbgmsg(...) dbgmsg_( "MAIN | " __VA_ARGS__ );
+
 App a = { };
 EngineInterface ei = { };
 GameInterface gi = { };
@@ -10,7 +12,11 @@ static void e_dbg_log(const char* fmt, ...) {
     std::vsnprintf(buf, sizeof(buf), fmt, va);
     va_end(va);
 
-    dbgmsg("[GAME] %s", buf);
+    dbgmsg_("GAME | %s", buf);
+}
+
+static bool e_load_asset( const char* path, Array<u8>& data ) {
+    return true;
 }
 
 static void load_game() {
@@ -42,8 +48,18 @@ static void load_game() {
     }
 }
 
+static void draw_debug_menu() {
+    if ( ImGui::BeginMainMenuBar() ) {
+        ImGui::EndMainMenuBar();
+    }
+}
+
 int main(int argc, char** argv) {
     hk::sys::create_console();
+
+#if 1
+    moth06_test();
+#endif
 
     a.argc = argc; a.argv = (const char**)argv;
 
@@ -77,6 +93,7 @@ int main(int argc, char** argv) {
 
     ei.size = sizeof(ei);
     ei.dbg_log = e_dbg_log;
+    ei.load_asset = e_load_asset;
 
     load_game();
 
@@ -88,8 +105,23 @@ int main(int argc, char** argv) {
             case SDL_QUIT: {
                 a.state |= APP_STATE_WANTS_QUIT;
             } break;
+            case SDL_KEYDOWN: {
+                switch ( evt.key.keysym.sym ) {
+                case SDLK_F3: {
+                    a.state ^= APP_STATE_DEBUG_UI;
+                } break;
+                }
+            } break;
             }
+            handle_ui_event(&evt);
         }
+
+        begin_frame();
+        // Debug UI
+        if ( a.state & APP_STATE_DEBUG_UI ) {
+            draw_debug_menu();
+        }
+        end_frame();
     } while (!(a.state & APP_STATE_WANTS_QUIT));
 
     // NOTE(HK): Normally I just let the OS clean everything up, but some Linux WMs don't restore the display
